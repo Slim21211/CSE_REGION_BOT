@@ -60,14 +60,21 @@ def start(message):
     traces = types.KeyboardButton('Трейсы для диспетчера')
     vympelcom = types.KeyboardButton('Вымпелком')
     netbynet = types.KeyboardButton('НэтБайНэт')
-    quiz = types.KeyboardButton('Аттестация сотрудников')
+    quiz = types.KeyboardButton('ТЕСТЫ')
     new_traces = types.KeyboardButton('НСТ')
+    trade_in = types.KeyboardButton('ТРЕЙД-ИН')
+    self_collection = types.KeyboardButton('Самоинкассация')
+    vsd = types.KeyboardButton("ВСД")
+    casarte = types.KeyboardButton("Casarte")
+    best = types.KeyboardButton("Лучший из лучших")
     markup.row(interns, study)
     markup.row(cargo, post_office)
     markup.row(fast_pay, mentors)
     markup.row(traces, new_traces)
     markup.row(vympelcom, netbynet)
-    markup.row(quiz)
+    markup.row(trade_in, self_collection)
+    markup.row(vsd, casarte)
+    markup.row(quiz, best)
     bot.send_message(message.chat.id,f'{message.from_user.first_name}, добро пожаловать в команду компании <i>Курьер Сервис Экспресс!</i>\n'
                                  '\n'
                                  'Вы подписались на обучающий бот компании.\n'
@@ -85,16 +92,23 @@ def start(message):
     fast_pay = types.KeyboardButton('СБП')
     mentors = types.KeyboardButton('Для наставника')
     traces = types.KeyboardButton('Трейсы для диспетчера')
-    quiz = types.KeyboardButton('Аттестация сотрудников')
+    quiz = types.KeyboardButton('ТЕСТЫ')
     new_traces = types.KeyboardButton('НСТ')
     vympelcom = types.KeyboardButton('Вымпелком')
     netbynet = types.KeyboardButton('НэтБайНэт')
+    trade_in = types.KeyboardButton('ТРЕЙД-ИН')
+    self_collection = types.KeyboardButton('Самоинкассация')
+    vsd = types.KeyboardButton("ВСД")
+    casarte = types.KeyboardButton("Casarte")
+    best = types.KeyboardButton("Лучший из лучших")
     markup.row(interns, study)
     markup.row(cargo, post_office)
     markup.row(fast_pay, mentors)
     markup.row(traces, new_traces)
     markup.row(vympelcom, netbynet)
-    markup.row(quiz)
+    markup.row(trade_in, self_collection)
+    markup.row(vsd, casarte)
+    markup.row(quiz, best)
     bot.send_message(message.chat.id,'Выберите раздел:', parse_mode='html', reply_markup=markup)
 
 @bot.message_handler(commands=['back'])
@@ -202,8 +216,11 @@ def get_user_text(message):
         bot.send_message(message.chat.id, 'Для возврата нажмите /back')
 
     elif message.text == 'Начало рабочего дня (видео)':
-        video = open('Video/start_day.MP4', 'rb')
-        bot.send_video(message.chat.id, video, width=1920, height=1080, timeout=10000)
+        markup = types.InlineKeyboardMarkup()
+        markup.add(types.InlineKeyboardButton('Смотреть видео',
+                                              url='https://drive.google.com/file/d/10hm8iQ8OyytR-phHhQmwh25Lr2BUtDpR/view?usp=drive_link'))
+        bot.send_message(message.chat.id, '<b>Начало рабочего дня</b>\nДля просмотра видео перейдите по ссылке:',
+                         reply_markup=markup)
         bot.send_message(message.chat.id, 'Для возврата нажмите /back')
 
     elif message.text == 'Расходные материалы':
@@ -225,8 +242,10 @@ def get_user_text(message):
         bot.send_message(message.chat.id, 'Для возврата нажмите /back')
 
     elif message.text == 'Расходные материалы (видео)':
-        video = open('Video/expend_materials.mp4', 'rb')
-        bot.send_video(message.chat.id, video, width=1920, height=1080, timeout=10000)
+        markup = types.InlineKeyboardMarkup()
+        markup.add(types.InlineKeyboardButton('Смотреть видео',
+                                              url='https://drive.google.com/file/d/1c55YdtzeFyOfyQIQRVcqdFOTZYgnh7c6/view?usp=drive_link'))
+        bot.send_message(message.chat.id, '<b>Расходные материалы</b>\nДля просмотра видео перейдите по ссылке:', reply_markup=markup)
         bot.send_message(message.chat.id, 'Для возврата нажмите /back')
 
     elif message.text == 'Накладная':
@@ -248,8 +267,11 @@ def get_user_text(message):
         bot.send_message(message.chat.id, 'Для возврата нажмите /back')
 
     elif message.text == 'Накладная (видео)':
-        video = open('Video/invoice.MP4', 'rb')
-        bot.send_video(message.chat.id, video, width=1920, height=1080, timeout=10000)
+        markup = types.InlineKeyboardMarkup()
+        markup.add(types.InlineKeyboardButton('Смотреть видео',
+                                              url='https://drive.google.com/file/d/1ddLAjq9t8mki7M-Dr33pv_Z4SkJ1H_Cq/view?usp=drive_link'))
+        bot.send_message(message.chat.id, '<b>Накладная</b>\nДля просмотра видео перейдите по ссылке:',
+                         reply_markup=markup)
         bot.send_message(message.chat.id, 'Для возврата нажмите /back')
 
     elif message.text == 'Доставка лично в руки':
@@ -271,8 +293,11 @@ def get_user_text(message):
         bot.send_message(message.chat.id, 'Для возврата нажмите /back')
 
     elif message.text == 'Доставка лично в руки (видео)':
-        video = open('Video/deliv_person.MP4', 'rb')
-        bot.send_video(message.chat.id, video, width=1920, height=1080, timeout=10000)
+        markup = types.InlineKeyboardMarkup()
+        markup.add(types.InlineKeyboardButton('Смотреть видео',
+                                              url='https://drive.google.com/file/d/1dT0o7FTahiWOPKY3UmyBmHy4g-5xS7cE/view?usp=drive_link'))
+        bot.send_message(message.chat.id, '<b>Доставка лично в руки</b>\nДля просмотра видео перейдите по ссылке:',
+                         reply_markup=markup)
         bot.send_message(message.chat.id, 'Для возврата нажмите /back')
 
     elif message.text == 'Доставка с возвратом':
@@ -293,8 +318,11 @@ def get_user_text(message):
         bot.send_message(message.chat.id, 'Для возврата нажмите /back')
 
     elif message.text == 'Доставка с возвратом (видео)':
-        video = open('Video/return_shipping.mp4', 'rb')
-        bot.send_video(message.chat.id, video, width=1920, height=1080, timeout=10000)
+        markup = types.InlineKeyboardMarkup()
+        markup.add(types.InlineKeyboardButton('Смотреть видео',
+                                              url='https://drive.google.com/file/d/1VA0TZDJV9cfCTiR93vHnOQ9U2mix0QR-/view?usp=drive_link'))
+        bot.send_message(message.chat.id, '<b>Доставка с возвратом</b>\nДля просмотра видео перейдите по ссылке:',
+                         reply_markup=markup)
         bot.send_message(message.chat.id, 'Для возврата нажмите /back')
 
     elif message.text == 'Забор за наличные деньги':
@@ -316,8 +344,11 @@ def get_user_text(message):
         bot.send_message(message.chat.id, 'Для возврата нажмите /back')
 
     elif message.text == 'Забор за наличные деньги (видео)':
-        video = open('Video/reception_cash.mp4', 'rb')
-        bot.send_video(message.chat.id, video, width=1920, height=1080, timeout=10000)
+        markup = types.InlineKeyboardMarkup()
+        markup.add(types.InlineKeyboardButton('Смотреть видео',
+                                              url='https://drive.google.com/file/d/1595XApsVCMP6i1VHLLgwERVzSHapgyzN/view?usp=drive_link'))
+        bot.send_message(message.chat.id, '<b>Забор за наличные деньги</b>\nДля просмотра видео перейдите по ссылке:',
+                         reply_markup=markup)
         bot.send_message(message.chat.id, 'Для возврата нажмите /back')
 
     elif message.text == 'Международное отправление':
@@ -339,8 +370,11 @@ def get_user_text(message):
         bot.send_message(message.chat.id, 'Для возврата нажмите /back')
 
     elif message.text == 'Международное отправление (видео)':
-        video = open('Video/international_shipping.mp4', 'rb')
-        bot.send_video(message.chat.id, video, width=1920, height=1080, timeout=10000)
+        markup = types.InlineKeyboardMarkup()
+        markup.add(types.InlineKeyboardButton('Смотреть видео',
+                                              url='https://drive.google.com/file/d/1zsgs04VACCAGVrQcRK1j6BlNopSBdwOb/view?usp=drive_link'))
+        bot.send_message(message.chat.id, '<b>Международное отправление</b>\nДля просмотра видео перейдите по ссылке:',
+                         reply_markup=markup)
         bot.send_message(message.chat.id, 'Для возврата нажмите /back')
 
     elif message.text == 'Завершение рабочего дня':
@@ -362,8 +396,11 @@ def get_user_text(message):
         bot.send_message(message.chat.id, 'Для возврата нажмите /back')
 
     elif message.text == 'Завершение рабочего дня (видео)':
-        video = open('Video/end_day.mp4', 'rb')
-        bot.send_video(message.chat.id, video, width=1920, height=1080, timeout=10000)
+        markup = types.InlineKeyboardMarkup()
+        markup.add(types.InlineKeyboardButton('Смотреть видео',
+                                              url='https://drive.google.com/file/d/1dA_x8cU2_WElcrfJehb5uRgGJnsHo921/view?usp=drive_link'))
+        bot.send_message(message.chat.id, '<b>Завершение рабочего дня</b>\nДля просмотра видео перейдите по ссылке:',
+                         reply_markup=markup)
         bot.send_message(message.chat.id, 'Для возврата нажмите /back')
 
     elif message.text == 'Тест по базовому обучению':
@@ -387,7 +424,7 @@ def get_user_text(message):
 
     elif message.text == 'Видео урок Карго':
         markup = types.InlineKeyboardMarkup()
-        markup.add(types.InlineKeyboardButton('Смотреть видео', url='https://disk.yandex.ru/i/ltovAU8b255-DQ'))
+        markup.add(types.InlineKeyboardButton('Смотреть видео', url='https://drive.google.com/file/d/1Bf6vn0BgSEtYXoV-TKXQkeWAHiWWE23Y/view?usp=drive_link'))
         bot.send_message(message.chat.id, 'Для просмотра видео перейдите по ссылке:', reply_markup=markup)
         bot.send_message(message.chat.id, 'Для возврата нажмите /home')
 
@@ -425,8 +462,10 @@ def get_user_text(message):
                                           'Для возврата нажмите /home', parse_mode='html', reply_markup=markup)
 
     elif message.text == 'Видео урок ПВЗ':
-        video = open('Video/halva_video.mp4', 'rb')
-        bot.send_video(message.chat.id, video, width=1920, height=1080, timeout=10000)
+        markup = types.InlineKeyboardMarkup()
+        markup.add(types.InlineKeyboardButton('Смотреть видео',
+                                              url='https://drive.google.com/file/d/1DpceGHOzdDcMh9f3-oUK5LW6GSzBx08z/view?usp=drive_link'))
+        bot.send_message(message.chat.id, '<b>Видео урок ПВЗ</b>\nДля просмотра видео перейдите по ссылке:', reply_markup=markup)
         bot.send_message(message.chat.id, 'Для возврата нажмите /home')
 
     elif message.text == 'Инструкция по работе с ПВЗ и почтоматами':
@@ -477,8 +516,11 @@ def get_user_text(message):
         bot.send_message(message.chat.id, 'Для возврата нажмите /home')
 
     elif message.text == 'Видео урок СБП':
-        video = open('Video/fast_pay.mp4', 'rb')
-        bot.send_video(message.chat.id, video, width=1920, height=1080, timeout=10000)
+        markup = types.InlineKeyboardMarkup()
+        markup.add(types.InlineKeyboardButton('Смотреть видео',
+                                              url='https://drive.google.com/file/d/10LCh0FJMRv8Axt4Lyc3UzIXxpDllxPQA/view?usp=drive_link'))
+        bot.send_message(message.chat.id, '<b>Видео урок СБП</b>\nДля просмотра видео перейдите по ссылке:',
+                         reply_markup=markup)
         bot.send_message(message.chat.id, 'Для возврата нажмите /home')
 
     elif message.text == 'Для наставника':
@@ -486,14 +528,16 @@ def get_user_text(message):
         chapter1 = types.KeyboardButton('Видео урок для наставников')
         chapter2 = types.KeyboardButton('Презентация для наставников')
         chapter3 = types.KeyboardButton('Памятка для наставников')
-        markup.row(chapter1)
-        markup.row(chapter2)
-        markup.row(chapter3)
+        chapter4 = types.KeyboardButton('Тест для наставников')
+        markup.add(chapter1, chapter2, chapter3, chapter4)
         bot.send_message(message.chat.id, 'Для возврата нажмите /home', parse_mode='html', reply_markup=markup)
 
     elif message.text == 'Видео урок для наставников':
-        video = open('Video/mentoring.mp4', 'rb')
-        bot.send_video(message.chat.id, video, width=1920, height=1080, timeout=10000)
+        markup = types.InlineKeyboardMarkup()
+        markup.add(types.InlineKeyboardButton('Смотреть видео',
+                                              url='https://drive.google.com/file/d/1MSDuS72YwKESSEI9FR08-HAGR5qCbMh-/view?usp=drive_link'))
+        bot.send_message(message.chat.id, '<b>Видео урок для наставников</b>\nДля просмотра видео перейдите по ссылке:',
+                         reply_markup=markup)
         bot.send_message(message.chat.id, 'Для возврата нажмите /home')
 
     elif message.text == 'Презентация для наставников':
@@ -502,11 +546,15 @@ def get_user_text(message):
         bot.send_message(message.chat.id, 'Для возврата нажмите /home')
 
     elif message.text == 'Памятка для наставников':
-        # doc = open('', 'rb')
-        # bot.send_document(message.chat.id, doc)
-        bot.send_message(message.chat.id, 'В этом разделе пока нет обучающих материалов, но они очень скоро появятся)\n'
-                                          '\n'
-                                          'Для возврата нажмите /home')
+        doc = open('Documents/mentors_reminder.pdf', 'rb')
+        bot.send_document(message.chat.id, doc)
+        bot.send_message(message.chat.id, 'Для возврата нажмите /home')
+
+    elif message.text == 'Тест для наставников':
+        markup = types.InlineKeyboardMarkup()
+        markup.add(types.InlineKeyboardButton('Тест для наставников', url='https://short.startexam.com/-491kseC'))
+        bot.send_message(message.chat.id, 'Перейдите по ссылке, чтобы пройти тестирование:', parse_mode='html', reply_markup=markup)
+        bot.send_message(message.chat.id, 'Для возврата в меню нажмите /home')
 
     elif message.text == 'Трейсы для диспетчера':
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
@@ -536,7 +584,8 @@ def get_user_text(message):
         chapter6 = types.KeyboardButton('НСТ логист')
         chapter7 = types.KeyboardButton('НСТ склад хранения')
         chapter8 = types.KeyboardButton('НСТ склад')
-        markup.add(chapter1, chapter2, chapter3, chapter4, chapter5, chapter6, chapter7, chapter8)
+        chapter9 = types.KeyboardButton('НСТ курьеры')
+        markup.add(chapter1, chapter2, chapter3, chapter9, chapter4, chapter5, chapter6, chapter7, chapter8)
         bot.send_message(message.chat.id, 'Для возврата нажмите /home', parse_mode='html', reply_markup=markup)
 
     elif message.text == 'Новая система трейсов':
@@ -554,9 +603,30 @@ def get_user_text(message):
         bot.send_document(message.chat.id, doc)
         bot.send_message(message.chat.id, 'Для возврата нажмите /home')
 
+    elif message.text == 'НСТ курьеры':
+        markup = types.InlineKeyboardMarkup()
+        markup.add(types.InlineKeyboardButton('Смотреть видео',
+                                              url='https://drive.google.com/file/d/1qZLvNtgqUH1f8zUZEXb0hAexkvdPxYKP/view?usp=drive_link'))
+        bot.send_message(message.chat.id, '<b>НСТ для курьеров доставка</b>\nДля просмотра видео перейдите по ссылке:', reply_markup=markup)
+        markup = types.InlineKeyboardMarkup()
+        markup.add(types.InlineKeyboardButton('Смотреть видео',
+                                              url='https://drive.google.com/file/d/1XhhmxLEwcDbjwSLs-93G5buUKOEkSs1v/view?usp=drive_link'))
+        bot.send_message(message.chat.id, '<b>НСТ для курьеров забор</b>\nДля просмотра видео перейдите по ссылке:', reply_markup=markup)
+        bot.send_message(message.chat.id, 'Для возврата нажмите /home')
+
     elif message.text == 'НСТ диспетчеры':
         doc = open('Documents/disp_traces_presentation.pdf', 'rb')
         bot.send_document(message.chat.id, doc)
+        markup = types.InlineKeyboardMarkup()
+        markup.add(types.InlineKeyboardButton('Смотреть видео',
+                                              url='https://drive.google.com/file/d/1Vfml-Iq-vE77Eru7ELcV8nGTI_twHWLf/view?usp=drive_link'))
+        bot.send_message(message.chat.id, '<b>НСТ для диспетчеров доставка</b>\nДля просмотра видео перейдите по ссылке:', reply_markup=markup)
+        markup = types.InlineKeyboardMarkup()
+        markup.add(types.InlineKeyboardButton('Смотреть видео',
+                                              url='https://drive.google.com/file/d/1bEnEYRC_ADji69e6pSq-oUA_i7LPlWef/view?usp=drive_link'))
+        bot.send_message(message.chat.id,
+                         '<b>НСТ для диспетчеров забор</b>\nДля просмотра видео перейдите по ссылке:',
+                         reply_markup=markup)
         bot.send_message(message.chat.id, 'Для возврата нажмите /home')
 
     elif message.text == 'Работа с трейсами ПВЗ':
@@ -577,13 +647,27 @@ def get_user_text(message):
     elif message.text == 'НСТ склад':
         doc = open('Documents/traces_storehouse.pdf', 'rb')
         bot.send_document(message.chat.id, doc)
+        markup = types.InlineKeyboardMarkup()
+        markup.add(types.InlineKeyboardButton('Смотреть видео',
+                                              url='https://drive.google.com/file/d/16qLMw3R54YOCVIvMTavlRdwvurQm5hz3/view?usp=drive_link'))
+        bot.send_message(message.chat.id, '<b>НСТ склад</b>\nДля просмотра видео перейдите по ссылке:', reply_markup=markup)
+        markup = types.InlineKeyboardMarkup()
+        markup.add(types.InlineKeyboardButton('Смотреть видео',
+                                              url='https://drive.google.com/file/d/1-61HToxFxRZmtoXdUJd13WWhLHaViZ_x/view?usp=drive_link'))
+        bot.send_message(message.chat.id, '<b>НСТ склад</b>\nДля просмотра видео перейдите по ссылке:', reply_markup=markup)
+        markup = types.InlineKeyboardMarkup()
+        markup.add(types.InlineKeyboardButton('Смотреть видео',
+                                              url='https://drive.google.com/file/d/1Tx3_Oqdtqlewk9dOz8YbXh7DGZyhd30S/view?usp=drive_link'))
+        bot.send_message(message.chat.id, '<b>НСТ склад</b>\nДля просмотра видео перейдите по ссылке:', reply_markup=markup)
         bot.send_message(message.chat.id, 'Для возврата нажмите /home')
 
     elif message.text == 'Вымпелком':
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
         chapter1 = types.KeyboardButton('Инструкции Вымпелком')
         chapter2 = types.KeyboardButton('Видео инструкции Вымпелком')
-        markup.add(chapter1, chapter2)
+        chapter3 = types.KeyboardButton('Презентация Вымпелком')
+        chapter4 = types.KeyboardButton('ЭДО')
+        markup.add(chapter1, chapter2, chapter3, chapter4)
         bot.send_message(message.chat.id, 'Выберите интересующий раздел\n'
                                           '\n'
                                           'Для возврата нажмите /home', parse_mode='html', reply_markup=markup)
@@ -607,19 +691,132 @@ def get_user_text(message):
         bot.send_message(message.chat.id, 'Инструкция ВК ШПД Порченное АБО:')
         bot.send_document(message.chat.id, doc6)
         bot.send_message(message.chat.id, 'Для возврата нажмите /home')
+
     elif message.text == 'Видео инструкции Вымпелком':
         markup = types.InlineKeyboardMarkup()
-        markup.add(types.InlineKeyboardButton('Смотреть видео', url='https://disk.yandex.ru/i/Yx1yyB0HaHnAPg'))
+        markup.add(types.InlineKeyboardButton('Смотреть видео', url='https://drive.google.com/file/d/1ztSN0jADCDaoinVBHURomJIZU8GvAo-X/view?usp=drive_link'))
         bot.send_message(message.chat.id, '<b>Возврат АБО для смартфона</b>\nДля просмотра видео перейдите по ссылке:', reply_markup=markup)
         markup = types.InlineKeyboardMarkup()
-        markup.add(types.InlineKeyboardButton('Смотреть видео', url='https://disk.yandex.ru/i/mXWbmfAOPkyDow'))
+        markup.add(types.InlineKeyboardButton('Смотреть видео', url='https://drive.google.com/file/d/1W6eXG-zhPcgUXO_y3MZAV7R30I9wLDig/view?usp=drive_link'))
         bot.send_message(message.chat.id, '<b>Доставка АБО</b>\nДля просмотра видео перейдите по ссылке:',
                          reply_markup=markup)
+        markup = types.InlineKeyboardMarkup()
+        markup.add(types.InlineKeyboardButton('Смотреть видео',
+                                              url='https://drive.google.com/file/d/1FENhWA1edTOhGiUEOzD7mpXoMQ3lAQzf/view?usp=drive_link'))
+        bot.send_message(message.chat.id, '<b>Доставка СИМ</b>\nДля просмотра видео перейдите по ссылке:',
+                         reply_markup=markup)
+        markup = types.InlineKeyboardMarkup()
+        markup.add(types.InlineKeyboardButton('Смотреть видео',
+                                              url='https://drive.google.com/file/d/1JLHyIaXicRpyolqdIRtQHsnulcjorUn_/view?usp=drive_link'))
+        bot.send_message(message.chat.id, '<b>Замена АБО</b>\nДля просмотра видео перейдите по ссылке:',
+                         reply_markup=markup)
         bot.send_message(message.chat.id, 'Для возврата нажмите /home')
+
+    elif message.text == 'Презентация Вымпелком':
+        doc = open('Documents/vympel_presentation.pdf', 'rb')
+        bot.send_document(message.chat.id, doc)
+        bot.send_message(message.chat.id, 'Для возврата нажмите /home')
+
+    elif message.text == 'ЭДО':
+        markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
+        chapter1 = types.KeyboardButton('Презентация ЭДО - Вымпелком')
+        chapter2 = types.KeyboardButton('Видеоурок ЭДО - Вымпелком')
+        chapter3 = types.KeyboardButton('Тест ЭДО - Вымпелком')
+        markup.add(chapter1, chapter2, chapter3)
+        bot.send_message(message.chat.id, 'Выберите интересующий раздел\n'
+                                          '\n'
+                                          'Для возврата нажмите /home', parse_mode='html', reply_markup=markup)
+
+    elif message.text == 'Презентация ЭДО - Вымпелком':
+        doc = open('Documents/vympel_presentation_EDM.pdf', 'rb')
+        bot.send_document(message.chat.id, doc)
+        bot.send_message(message.chat.id, 'Для возврата нажмите /home')
+
+    elif message.text == 'Видеоурок ЭДО - Вымпелком':
+        # video = open('', 'rb')
+        # bot.send_document(message.chat.id, video)
+        bot.send_message(message.chat.id, 'В этом разделе пока нет обучающих материалов, но они очень скоро появятся)\n'
+                                          '\n'
+                                          'Для возврата нажмите /home')
+
+    elif message.text == 'Тест ЭДО - Вымпелком':
+        markup = types.InlineKeyboardMarkup()
+        markup.add(types.InlineKeyboardButton('Тест ЭДО - Вымпелком', url='https://short.startexam.com/xICbjKBm'))
+        bot.send_message(message.chat.id, 'Перейдите по ссылке, чтобы пройти тест:', parse_mode='html',
+                         reply_markup=markup)
+        bot.send_message(message.chat.id, 'Для возврата в меню нажмите /home')
 
     elif message.text == 'НэтБайНэт':
         doc1 = open('Documents/netbynet.pdf', 'rb')
         bot.send_document(message.chat.id, doc1)
+        doc2 = open('Documents/netbynet_instruction.pdf', 'rb')
+        bot.send_document(message.chat.id, doc2)
+
+    elif message.text == 'ТРЕЙД-ИН':
+        markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
+        chapter1 = types.KeyboardButton('Памятка ТРЕЙД_ИН')
+        chapter2 = types.KeyboardButton('Презентация ТРЕЙД-ИН')
+        chapter3 = types.KeyboardButton('Видео процесса проверки Б/У устройства')
+        chapter4 = types.KeyboardButton('Тест по ТРЕЙД-ИН')
+        markup.add(chapter1, chapter2)
+        markup.add(chapter3, chapter4)
+        bot.send_message(message.chat.id, 'Для возврата нажмите /home', parse_mode='html', reply_markup=markup)
+
+    elif message.text == 'Памятка ТРЕЙД_ИН':
+        doc = open('Documents/instruction_trade-in.pdf', 'rb')
+        bot.send_document(message.chat.id, doc)
+        bot.send_message(message.chat.id, 'Для возврата нажмите /home')
+
+    elif message.text == 'Презентация ТРЕЙД-ИН':
+        doc = open('Documents/presentation_trade-in.pdf', 'rb')
+        bot.send_document(message.chat.id, doc)
+        bot.send_message(message.chat.id, 'Для возврата нажмите /home')
+
+    elif message.text == 'Видео процесса проверки Б/У устройства':
+        markup = types.InlineKeyboardMarkup()
+        markup.add(types.InlineKeyboardButton('Смотреть видео', url='https://drive.google.com/file/d/1QMmoHXaZ1S_t8x_9JhWUDttDjiDNDaeY/view?usp=drive_link'))
+        bot.send_message(message.chat.id, '<b>Проверка Б/У устройства</b>\nДля просмотра видео перейдите по ссылке:', reply_markup=markup)
+        bot.send_message(message.chat.id, 'Для возврата нажмите /home')
+
+    elif message.text == 'Тест по ТРЕЙД-ИН':
+        markup = types.InlineKeyboardMarkup()
+        markup.add(types.InlineKeyboardButton('Тест по ТРЕЙД-ИН', url='https://short.startexam.com/_9kcW1mf'))
+        bot.send_message(message.chat.id, 'Перейдите по ссылке, чтобы пройти тест:', parse_mode='html',
+                         reply_markup=markup)
+        bot.send_message(message.chat.id, 'Для возврата в меню нажмите /home')
+
+    elif message.text == 'Самоинкассация':
+        markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
+        chapter1 = types.KeyboardButton('Самоинкассация Москва и МО')
+        chapter2 = types.KeyboardButton('Самоинкассация Регионы')
+        markup.row(chapter1, chapter2)
+        bot.send_message(message.chat.id, 'Для возврата нажмите /home', parse_mode='html', reply_markup=markup)
+
+    elif message.text == 'Самоинкассация Москва и МО':
+        doc = open('Documents/self_collection_region_msk_sber.pdf', 'rb')
+        bot.send_document(message.chat.id, doc)
+        doc = open('Documents/self_collection_MKB.pdf', 'rb')
+        bot.send_document(message.chat.id, doc)
+        doc = open('Documents/self_collection_eleksnet.pdf', 'rb')
+        bot.send_document(message.chat.id, doc)
+        bot.send_message(message.chat.id, 'Для возврата нажмите /home')
+
+    elif message.text == 'Самоинкассация Регионы':
+        doc = open('Documents/self_collection_region_sber.pdf', 'rb')
+        bot.send_document(message.chat.id, doc)
+        markup = types.InlineKeyboardMarkup()
+        markup.add(types.InlineKeyboardButton('Смотреть видео',
+                                              url='https://drive.google.com/file/d/1eUNFf6wzOsibqOHQFhpYj5OspkcgXPVy/view?usp=drive_link'))
+        bot.send_message(message.chat.id, '<b>Самоинкассация Регионы</b>\nДля просмотра видео перейдите по ссылке:',
+                         reply_markup=markup)
+        bot.send_message(message.chat.id, 'Для возврата нажмите /home')
+
+    elif message.text == 'Casarte':
+        doc = open('Documents/casarte_presentation.pdf', 'rb')
+        bot.send_document(message.chat.id, doc)
+        doc = open('Documents/casarte_reminder.pdf', 'rb')
+        bot.send_document(message.chat.id, doc)
+        bot.send_message(message.chat.id, 'Для возврата нажмите /home')
 
     elif message.text == 'Аттестация сотрудников':
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
@@ -639,15 +836,65 @@ def get_user_text(message):
         bot.send_message(message.chat.id, 'Перейдите по ссылке, чтобы пройти аттестацию:', parse_mode='html', reply_markup=markup)
         bot.send_message(message.chat.id, 'Для возврата в меню нажмите /home')
 
+    elif message.text == 'ТЕСТЫ':
+        markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
+        chapter1 = types.KeyboardButton('Тест Вымпелком')
+        chapter2 = types.KeyboardButton('Тест Нетбайнет (Мегафон)')
+        chapter3 = types.KeyboardButton('Тест ТРЕЙД-ИН')
+        chapter4 = types.KeyboardButton('Аттестация сотрудников')
+        chapter5 = types.KeyboardButton('Тест ЭДО - Вымпелком')
+        markup.add(chapter1, chapter5, chapter2, chapter3, chapter4)
+        bot.send_message(message.chat.id, 'Для возврата нажмите /home', parse_mode='html', reply_markup=markup)
+
+    elif message.text == 'Тест Вымпелком':
+        markup = types.InlineKeyboardMarkup()
+        markup.add(types.InlineKeyboardButton('Тест Вымпелком', url='https://short.startexam.com/VmwNCt28'))
+        bot.send_message(message.chat.id, 'Перейдите по ссылке, чтобы пройти тестирование:', parse_mode='html', reply_markup=markup)
+        bot.send_message(message.chat.id, 'Для возврата в меню нажмите /home')
+
+    elif message.text == 'Тест Нетбайнет (Мегафон)':
+        markup = types.InlineKeyboardMarkup()
+        markup.add(types.InlineKeyboardButton('Тест Нетбайнет (Мегафон)', url='https://short.startexam.com/Yf4UbFTD'))
+        bot.send_message(message.chat.id, 'Перейдите по ссылке, чтобы пройти тестирование:', parse_mode='html', reply_markup=markup)
+        bot.send_message(message.chat.id, 'Для возврата в меню нажмите /home')
+
+    elif message.text == 'Тест ТРЕЙД-ИН':
+        markup = types.InlineKeyboardMarkup()
+        markup.add(types.InlineKeyboardButton('Тест ТРЕЙД-ИН', url='https://short.startexam.com/_9kcW1mf'))
+        bot.send_message(message.chat.id, 'Перейдите по ссылке, чтобы пройти тестирование:', parse_mode='html', reply_markup=markup)
+        bot.send_message(message.chat.id, 'Для возврата в меню нажмите /home')
+
+    elif message.text == 'ВСД':
+        markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
+        chapter1 = types.KeyboardButton('Памятка по заполнению ВСД клиентов JTI, Нестле')
+        chapter2 = types.KeyboardButton('Видео по заполнению ВСД клиентов JTI, Нестле')
+        markup.add(chapter1, chapter2)
+        bot.send_message(message.chat.id, 'Для возврата нажмите /home', parse_mode='html', reply_markup=markup)
+
+    elif message.text == 'Памятка по заполнению ВСД клиентов JTI, Нестле':
+        doc = open('Documents/VSD_reminder.pdf', 'rb')
+        bot.send_document(message.chat.id, doc)
+        bot.send_message(message.chat.id, 'Для возврата нажмите /home')
+
+    elif message.text == 'Видео по заполнению ВСД клиентов JTI, Нестле':
+        # video = open('', 'rb')
+        # bot.send_document(message.chat.id, video)
+        bot.send_message(message.chat.id, 'В этом разделе пока нет обучающих материалов, но они очень скоро появятся)\n'
+                                          '\n'
+                                          'Для возврата нажмите /home')
+
+    elif message.text == 'Лучший из лучших':
+        markup = types.InlineKeyboardMarkup()
+        markup.add(types.InlineKeyboardButton('Смотреть видео', url='https://disk.yandex.ru/i/U0PNeSGWqubTpA'))
+        bot.send_message(message.chat.id, '<b>Лучший из лучших</b>\nДля просмотра видео перейдите по ссылке:', reply_markup=markup)
+        bot.send_message(message.chat.id, 'Для возврата нажмите /home')
+
     else:
         bot.send_message(message.chat.id,'Для возврата в начало нажмите /home\n'
                                          '\n'
                                          'Если у Вас возникли вопросы, ответы на которые Вы не нашли в этом боте, обратитесь в Отдел обучения и развития\n'
                                          '\n'
                                          'Для продолжения работы переключите клавиатуру на кнопки и выберите один из разделов ниже:')
-
-
-
 
 
 bot.infinity_polling()
