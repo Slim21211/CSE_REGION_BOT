@@ -1,85 +1,139 @@
 import telebot
 import sqlite3
+from decouple import config
+from datetime import datetime
+
 from telebot import types
 
-bot = telebot.TeleBot("5415445247:AAHg_cDaH1q1rSlkMP4tRE8wfbBmX3TOl_A", parse_mode='html')
-admin_id = 349682954
+telegram_bot_token = config('TELEGRAM_BOT_TOKEN')
+bot = telebot.TeleBot(telegram_bot_token, parse_mode='html')
+admin_ids = [349682954, 1793932185]
+pending_message = {}
+
+connect_users = sqlite3.connect('users.db')
+cursor_users = connect_users.cursor()
+
+# Создаем таблицу users_info, если она не существует
+cursor_users.execute('''CREATE TABLE IF NOT EXISTS users_info(
+    id INTEGER PRIMARY KEY,
+    user_id INTEGER,
+    name TEXT,
+    surname TEXT,
+    city TEXT
+)''')
+
+# Фиксируем изменения в базе данных
+connect_users.commit()
+
+# Закрываем соединение с базой данных
+connect_users.close()
+
+def process_name_step(message, chat_id):
+    try:
+        connect = sqlite3.connect('users.db')
+        cursor = connect.cursor()
+
+        name = message.text
+        bot.send_message(chat_id, "Введите вашу фамилию:")
+        bot.register_next_step_handler(message, process_surname_step, chat_id, name)
+    except Exception as e:
+        print(e)
+    finally:
+        connect.close()
+
+def process_surname_step(message, chat_id, name):
+    try:
+        connect = sqlite3.connect('users.db')
+        cursor = connect.cursor()
+
+        surname = message.text
+        bot.send_message(chat_id, "Введите ваш город:")
+        bot.register_next_step_handler(message, process_city_step, chat_id, name, surname)
+    except Exception as e:
+        print(e)
+    finally:
+        connect.close()
+
+def process_city_step(message, chat_id, name, surname):
+    try:
+        connect = sqlite3.connect('users.db')
+        cursor = connect.cursor()
+
+        city = message.text
+
+        # Сохраняем информацию в базе данных
+        cursor.execute("INSERT INTO users_info (user_id, name, surname, city) VALUES (?, ?, ?, ?)",
+                        (chat_id, name, surname, city))
+        connect.commit()
+
+        bot.send_message(chat_id, f"Спасибо, {name} {surname}!\n"
+                                  "\n"
+                                  " Для начала обучения нажмите /home")
+    except Exception as e:
+        print(e)
+    finally:
+        connect.close()
 
 def analytics(func: callable):
     def analytics_wrapper(message):
-        connect = sqlite3.connect('users.db')
-        cursor = connect.cursor()
-        cursor.execute('''CREATE TABLE IF NOT EXISTS login_id(
-            id INTEGER,
-            name TEXT,
-            surname TEXT
-        )''')
-        connect.commit()
+        try:
+            chat_id = message.chat.id
 
-        people_id = message.chat.id
-        cursor.execute(f'SELECT id FROM login_id WHERE id = {people_id}')
-        data = cursor.fetchone()
-        if data is None:
-            user = (message.chat.id, message.from_user.first_name, message.from_user.last_name)
-            print("Новый пользователь: ", user, "Сообщение: ", message.text)
-            cursor.execute('INSERT INTO login_id VALUES(?,?,?);', user)
-            connect.commit()
+            # Проверка существования записи в базе данных по chat_id
+            connect = sqlite3.connect('users.db')
+            cursor = connect.cursor()
+            cursor.execute("SELECT * FROM users_info WHERE user_id = ?", (chat_id,))
+            existing_user = cursor.fetchone()
 
-        connect = sqlite3.connect('message.db')
-        cursor = connect.cursor()
-        cursor.execute('''CREATE TABLE IF NOT EXISTS messages(
+            if existing_user and message.text == '/start':
+                # Запись уже существует
+                id, user_id, name, surname, city = existing_user
+                print(f"Пользователь с chat_id {chat_id} уже существует: {name} {surname}, город: {city}, id: {id}")
+                bot.send_message(chat_id, f"Приветствуем, {name} {surname}!\n"
+                                          "\n"
+                                          " Для начала обучения нажмите /home")
+            elif message.text == '/start':
+                # Запрос данных у пользователя только при команде /start и отсутствии записи в базе
+                bot.send_message(chat_id, "Добро пожаловать в команду компании <i>Курьер Сервис Экспресс!</i>\n"
+                                          "\n"
+                                          "Вы подписались на обучающий бот компании.\n"
+                                          "\n"
+                                          " Введите ваше имя:")
+                bot.register_next_step_handler(message, process_name_step, chat_id)
+        except Exception as e:
+            print(e)
+        finally:
+            connect.close()
+
+        try:
+            # Создаем новый объект cursor для выполнения SQL-запросов
+            message_date = datetime.fromtimestamp(message.date)
+            message_date_formatted = message_date.strftime("%H:%M:%S %d.%m.%Y")
+            connect_message = sqlite3.connect('message.db')
+            cursor_message = connect_message.cursor()
+            cursor_message.execute('''CREATE TABLE IF NOT EXISTS messages(
                     id INTEGER,
                     name TEXT,
                     surname TEXT,
-                    message TEXT
+                    message TEXT,
+                    time_sent TEXT
                 )''')
-        connect.commit()
+            connect_message.commit()
 
-        people_id = message.chat.id
-        cursor.execute(f'SELECT id FROM messages WHERE id = {people_id}')
-        user = (message.chat.id, message.from_user.first_name, message.from_user.last_name, message.text)
-        print("Пользователь: ", user)
-        cursor.execute('INSERT INTO messages VALUES(?,?,?,?);', user)
-        connect.commit()
+            people_id = message.chat.id
+            cursor_message.execute(f'SELECT id FROM messages WHERE id = {people_id}')
+            user = (message.chat.id, message.from_user.first_name, message.from_user.last_name, message.text, message_date_formatted)
+            print("Пользователь: ", user)
+            cursor_message.execute('INSERT INTO messages VALUES(?,?,?,?,?);', user)
+            connect_message.commit()
+        except Exception as e:
+            print(e)
+        finally:
+            connect_message.close()
+
         return func(message)
+
     return analytics_wrapper
-
-@bot.message_handler(commands=['start'])
-@analytics
-def start(message):
-    with open('users.txt', 'a+') as usersids:
-        print(message.chat.id, file=usersids)
-
-    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    interns = types.KeyboardButton('Для стажеров')
-    study = types.KeyboardButton('Базовое обучение')
-    cargo = types.KeyboardButton('КАРГО')
-    post_office = types.KeyboardButton('ПВЗ и почтоматы')
-    fast_pay = types.KeyboardButton('СБП')
-    mentors = types.KeyboardButton('Для наставника')
-    traces = types.KeyboardButton('Трейсы для диспетчера')
-    vympelcom = types.KeyboardButton('Вымпелком')
-    netbynet = types.KeyboardButton('НэтБайНэт')
-    quiz = types.KeyboardButton('ТЕСТЫ')
-    new_traces = types.KeyboardButton('НСТ')
-    trade_in = types.KeyboardButton('ТРЕЙД-ИН')
-    self_collection = types.KeyboardButton('Самоинкассация')
-    vsd = types.KeyboardButton("ВСД")
-    casarte = types.KeyboardButton("Casarte")
-    best = types.KeyboardButton("Лучший из лучших")
-    markup.row(interns, study)
-    markup.row(cargo, post_office)
-    markup.row(fast_pay, mentors)
-    markup.row(traces, new_traces)
-    markup.row(vympelcom, netbynet)
-    markup.row(trade_in, self_collection)
-    markup.row(vsd, casarte)
-    markup.row(quiz, best)
-    bot.send_message(message.chat.id,f'{message.from_user.first_name}, добро пожаловать в команду компании <i>Курьер Сервис Экспресс!</i>\n'
-                                 '\n'
-                                 'Вы подписались на обучающий бот компании.\n'
-                                 '\n'
-                                 'Выберите раздел:', parse_mode='html', reply_markup=markup)
 
 @bot.message_handler(commands=['home'])
 @analytics
@@ -91,7 +145,6 @@ def start(message):
     post_office = types.KeyboardButton('ПВЗ и почтоматы')
     fast_pay = types.KeyboardButton('СБП')
     mentors = types.KeyboardButton('Для наставника')
-    traces = types.KeyboardButton('Трейсы для диспетчера')
     quiz = types.KeyboardButton('ТЕСТЫ')
     new_traces = types.KeyboardButton('НСТ')
     vympelcom = types.KeyboardButton('Вымпелком')
@@ -104,11 +157,11 @@ def start(message):
     markup.row(interns, study)
     markup.row(cargo, post_office)
     markup.row(fast_pay, mentors)
-    markup.row(traces, new_traces)
-    markup.row(vympelcom, netbynet)
-    markup.row(trade_in, self_collection)
-    markup.row(vsd, casarte)
-    markup.row(quiz, best)
+    markup.row(vympelcom, new_traces)
+    markup.row(trade_in, netbynet)
+    markup.row(vsd, self_collection)
+    markup.row(quiz, casarte)
+    markup.row(best)
     bot.send_message(message.chat.id,'Выберите раздел:', parse_mode='html', reply_markup=markup)
 
 @bot.message_handler(commands=['back'])
@@ -131,22 +184,56 @@ def back(message):
                                       'Для возврата нажмите /home', parse_mode='html', reply_markup=markup)
 
 @bot.message_handler(commands=['send'])
+@analytics
 def send(message):
-    if message.chat.id == admin_id:
-        bot.send_message(message.chat.id, 'Start')
-        for i in open('users.txt', 'r').readlines():
-            try:
-                bot.send_message(i, 'ОБЪЯВЛЕНИЕ!!!\n\n'
-                                    'Коллеги, сегодня в боте пройдут небольшие обновления. Какое-то непродолжительное время он работать не будет.\n\n'
-                                    'Вы получите оповещение, когда всё будет восстановлено.\n\n'
-                                    'Приносим извинения за временные неудобства!')
-            except:
-                continue
-        bot.send_message(message.chat.id, 'Stop')
+    if message.chat.id in admin_ids:
+        bot.send_message(message.chat.id, 'Введите текст сообщения для рассылки:')
+        bot.register_next_step_handler(message, confirm_message_step)
     else:
         bot.send_message(message.chat.id, 'Вы не можете делать рассылку в этом боте')
 
+def confirm_message_step(message):
+    text_to_send = message.text
+    pending_message[message.chat.id] = text_to_send
+    bot.send_message(message.chat.id, 'Подтвердите рассылку командой /confirm_send, или отправьте /cancel_send, чтобы отменить рассылку.')
 
+@bot.message_handler(commands=['confirm_send'])
+@analytics
+def confirm_send(message):
+    text_to_send = pending_message.get(message.chat.id)
+    if text_to_send:
+        bot.send_message(message.chat.id, 'Рассылка начата. Это может занять некоторое время.')
+        user_ids_to_send = set()  # Используем множество для хранения уникальных user_id
+
+        # Считываем user_id из вашей базы данных users.db
+        connect_users = sqlite3.connect('users.db')
+        cursor_users = connect_users.cursor()
+        cursor_users.execute("SELECT user_id FROM users_info")
+        for row in cursor_users.fetchall():
+            user_id = row[0]
+            user_ids_to_send.add(user_id)
+
+        # Отправляем сообщение каждому уникальному user_id
+        for user_id in user_ids_to_send:
+            try:
+                bot.send_message(user_id, text_to_send)
+            except Exception as e:
+                print(f"Ошибка при отправке сообщения пользователю {user_id}: {e}")
+
+        connect_users.close()
+        bot.send_message(message.chat.id, 'Рассылка завершена.')
+
+    else:
+        bot.send_message(message.chat.id, 'Отсутствует текст сообщения для рассылки.')
+
+@bot.message_handler(commands=['cancel_send'])
+@analytics
+def cancel_send(message):
+    if message.chat.id in admin_ids:
+        pending_message.pop(message.chat.id, None)
+        bot.send_message(message.chat.id, 'Рассылка отменена.')
+    else:
+        bot.send_message(message.chat.id, 'Вы не можете отменить рассылку в этом боте.')
 
 @bot.message_handler(content_types=['text'])
 @analytics
@@ -556,24 +643,6 @@ def get_user_text(message):
         bot.send_message(message.chat.id, 'Перейдите по ссылке, чтобы пройти тестирование:', parse_mode='html', reply_markup=markup)
         bot.send_message(message.chat.id, 'Для возврата в меню нажмите /home')
 
-    elif message.text == 'Трейсы для диспетчера':
-        markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
-        chapter1 = types.KeyboardButton('Презентация трейсы для диспетчера')
-        chapter2 = types.KeyboardButton('Памятка трейсы для диспетчера')
-        markup.row(chapter1)
-        markup.row(chapter2)
-        bot.send_message(message.chat.id, 'Для возврата нажмите /home', parse_mode='html', reply_markup=markup)
-
-    elif message.text == 'Презентация трейсы для диспетчера':
-        doc = open('Documents/disp_traces_presentation.pdf', 'rb')
-        bot.send_document(message.chat.id, doc)
-        bot.send_message(message.chat.id, 'Для возврата нажмите /home')
-
-    elif message.text == 'Памятка трейсы для диспетчера':
-        doc = open('Documents/disp_traces_reminder.pdf', 'rb')
-        bot.send_document(message.chat.id, doc)
-        bot.send_message(message.chat.id, 'Для возврата нажмите /home')
-
     elif message.text == 'НСТ':
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
         chapter1 = types.KeyboardButton('Новая система трейсов')
@@ -884,9 +953,22 @@ def get_user_text(message):
                                           'Для возврата нажмите /home')
 
     elif message.text == 'Лучший из лучших':
+        markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
+        chapter1 = types.KeyboardButton('1-й квартал 2023')
+        chapter2 = types.KeyboardButton('2-й квартал 2023')
+        markup.add(chapter1, chapter2)
+        bot.send_message(message.chat.id, 'Для возврата нажмите /home', parse_mode='html', reply_markup=markup)
+
+    elif message.text == '1-й квартал 2023':
         markup = types.InlineKeyboardMarkup()
         markup.add(types.InlineKeyboardButton('Смотреть видео', url='https://disk.yandex.ru/i/U0PNeSGWqubTpA'))
-        bot.send_message(message.chat.id, '<b>Лучший из лучших</b>\nДля просмотра видео перейдите по ссылке:', reply_markup=markup)
+        bot.send_message(message.chat.id, '<b>Лучший из лучших за 1-й квартал 2023 года</b>\nДля просмотра видео перейдите по ссылке:', reply_markup=markup)
+        bot.send_message(message.chat.id, 'Для возврата нажмите /home')
+
+    elif message.text == '2-й квартал 2023':
+        markup = types.InlineKeyboardMarkup()
+        markup.add(types.InlineKeyboardButton('Смотреть видео', url='https://disk.yandex.ru/i/XE3bkwNu4AhmEQ'))
+        bot.send_message(message.chat.id, '<b>Лучший из лучших за 2-й квартал 2023 года</b>\nДля просмотра видео перейдите по ссылке:', reply_markup=markup)
         bot.send_message(message.chat.id, 'Для возврата нажмите /home')
 
     else:
