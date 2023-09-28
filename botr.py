@@ -562,35 +562,23 @@ def get_user_text(message):
         bot.send_message(message.chat.id, 'Для возврата нажмите /home', parse_mode='html')
 
     elif message.text == 'СБП':
-        connect = sqlite3.connect('users_sbp.db')
-        cursor = connect.cursor()
-        cursor.execute('''CREATE TABLE IF NOT EXISTS login_sbp_id(
-                        id INTEGER,
-                        name TEXT,
-                        surname TEXT
-                    )''')
-        connect.commit()
-
-        people_id = message.chat.id
-        cursor.execute(f'SELECT id FROM login_sbp_id WHERE id = {people_id}')
-        data = cursor.fetchone()
-        if data is None:
-            user_sbp = (message.chat.id, message.from_user.first_name, message.from_user.last_name)
-            print("Обучение СБП: ", user_sbp)
-            cursor.execute('INSERT INTO login_sbp_id VALUES(?,?,?);', user_sbp)
-            connect.commit()
-
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
+        reminder = types.KeyboardButton('Памятка по СБП')
         manual = types.KeyboardButton('Инструкция по СБП')
         script = types.KeyboardButton('Скрипт для курьеров по СБП')
         video = types.KeyboardButton('Видео урок СБП')
-        markup.row(manual, script)
-        markup.row(video)
+        markup.row(reminder, manual)
+        markup.row(script, video)
         bot.send_message(message.chat.id, '<b><i>СБП</i></b>\n'
                                           '\n'
                                           'Выберите раздел:\n'
                                           '\n'
                                           'Для возврата назад нажмите /home', parse_mode='html', reply_markup=markup)
+
+    elif message.text == 'Памятка по СБП':
+        doc = open('Documents/fast_pay_reminder.pdf', 'rb')
+        bot.send_document(message.chat.id, doc)
+        bot.send_message(message.chat.id, 'Для возврата нажмите /home')
 
     elif message.text == 'Инструкция по СБП':
         doc = open('Documents/fast_pay_manual.pdf', 'rb')
