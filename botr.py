@@ -153,6 +153,7 @@ def start(message):
     self_collection = types.KeyboardButton('Самоинкассация')
     vsd = types.KeyboardButton("ВСД")
     casarte = types.KeyboardButton("Casarte")
+    jamilco = types.KeyboardButton("МФК Джамилько/Монэкс трейдинг-им")
     best = types.KeyboardButton("Лучший из лучших")
     markup.row(interns, study)
     markup.row(cargo, post_office)
@@ -161,7 +162,7 @@ def start(message):
     markup.row(trade_in, netbynet)
     markup.row(vsd, self_collection)
     markup.row(quiz, casarte)
-    markup.row(best)
+    markup.row(jamilco, best)
     bot.send_message(message.chat.id,'Выберите раздел:', parse_mode='html', reply_markup=markup)
 
 @bot.message_handler(commands=['back'])
@@ -939,6 +940,11 @@ def get_user_text(message):
         bot.send_message(message.chat.id, 'В этом разделе пока нет обучающих материалов, но они очень скоро появятся)\n'
                                           '\n'
                                           'Для возврата нажмите /home')
+
+    elif message.text == 'МФК Джамилько/Монэкс трейдинг-им':
+        doc = open('Documents/jamilco_presentation.pdf', 'rb')
+        bot.send_document(message.chat.id, doc)
+        bot.send_message(message.chat.id, 'Для возврата нажмите /home')
 
     elif message.text == 'Лучший из лучших':
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
