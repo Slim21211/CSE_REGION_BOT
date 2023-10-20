@@ -155,6 +155,7 @@ def start(message):
     casarte = types.KeyboardButton("Casarte")
     jamilco = types.KeyboardButton("МФК Джамилько/Монэкс трейдинг-им")
     best = types.KeyboardButton("Лучший из лучших")
+    rostelecom = types.KeyboardButton("Ростелеком")
     markup.row(interns, study)
     markup.row(cargo, post_office)
     markup.row(fast_pay, mentors)
@@ -162,7 +163,8 @@ def start(message):
     markup.row(trade_in, netbynet)
     markup.row(vsd, self_collection)
     markup.row(quiz, casarte)
-    markup.row(jamilco, best)
+    markup.row(jamilco, rostelecom)
+    markup.row(best)
     bot.send_message(message.chat.id,'Выберите раздел:', parse_mode='html', reply_markup=markup)
 
 @bot.message_handler(commands=['back'])
@@ -943,6 +945,11 @@ def get_user_text(message):
 
     elif message.text == 'МФК Джамилько/Монэкс трейдинг-им':
         doc = open('Documents/jamilco_presentation.pdf', 'rb')
+        bot.send_document(message.chat.id, doc)
+        bot.send_message(message.chat.id, 'Для возврата нажмите /home')
+
+    elif message.text == 'Ростелеком':
+        doc = open('Documents/rostelecom_instruction.pdf', 'rb')
         bot.send_document(message.chat.id, doc)
         bot.send_message(message.chat.id, 'Для возврата нажмите /home')
 
