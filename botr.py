@@ -951,6 +951,8 @@ def get_user_text(message):
     elif message.text == 'Ростелеком':
         doc = open('Documents/rostelecom_instruction.pdf', 'rb')
         bot.send_document(message.chat.id, doc)
+        doc = open('Documents/rostelecom_presentation.pdf', 'rb')
+        bot.send_document(message.chat.id, doc)
         bot.send_message(message.chat.id, 'Для возврата нажмите /home')
 
     elif message.text == 'Лучший из лучших':
