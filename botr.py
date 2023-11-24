@@ -949,10 +949,24 @@ def get_user_text(message):
         bot.send_message(message.chat.id, 'Для возврата нажмите /home')
 
     elif message.text == 'Ростелеком':
+        markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
+        chapter1 = types.KeyboardButton('Ростелеком Москва и МО')
+        chapter2 = types.KeyboardButton('Ростелеком Регионы')
+        markup.add(chapter1, chapter2)
+        bot.send_message(message.chat.id, 'Для возврата нажмите /home', parse_mode='html', reply_markup=markup)
+
+    elif message.text == 'Ростелеком Москва и МО':
         doc = open('Documents/rostelecom_instruction.pdf', 'rb')
         bot.send_document(message.chat.id, doc)
-        doc = open('Documents/rostelecom_presentation.pdf', 'rb')
+        doc = open('Documents/rostelecom_msk.pdf', 'rb')
         bot.send_document(message.chat.id, doc)
+        bot.send_message(message.chat.id, 'Для возврата нажмите /home')
+
+    elif message.text == 'Ростелеком Регионы':
+        doc = open('Documents/rostelecom_region.pdf', 'rb')
+        bot.send_document(message.chat.id, doc)
+        img = open('Documents/rostelecom_poster.jpg', 'rb')
+        bot.send_photo(message.chat.id, img)
         bot.send_message(message.chat.id, 'Для возврата нажмите /home')
 
     elif message.text == 'Лучший из лучших':
