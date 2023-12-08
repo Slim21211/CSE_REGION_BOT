@@ -156,6 +156,7 @@ def start(message):
     jamilco = types.KeyboardButton("МФК Джамилько/Монэкс трейдинг-им")
     best = types.KeyboardButton("Лучший из лучших")
     rostelecom = types.KeyboardButton("Ростелеком")
+    temperature = types.KeyboardButton("Температурные грузы")
     markup.row(interns, study)
     markup.row(cargo, post_office)
     markup.row(fast_pay, mentors)
@@ -164,7 +165,7 @@ def start(message):
     markup.row(vsd, self_collection)
     markup.row(quiz, casarte)
     markup.row(jamilco, rostelecom)
-    markup.row(best)
+    markup.row(temperature, best)
     bot.send_message(message.chat.id,'Выберите раздел:', parse_mode='html', reply_markup=markup)
 
 @bot.message_handler(commands=['back'])
@@ -968,6 +969,55 @@ def get_user_text(message):
         img = open('Documents/rostelecom_poster.jpg', 'rb')
         bot.send_photo(message.chat.id, img)
         bot.send_message(message.chat.id, 'Для возврата нажмите /home')
+
+    elif message.text == 'Температурные грузы':
+        markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
+        chapter1 = types.KeyboardButton('Температурные грузы для курьеров')
+        chapter2 = types.KeyboardButton('Температурные грузы для диспетчеров')
+        markup.add(chapter1, chapter2)
+        bot.send_message(message.chat.id, 'Для возврата нажмите /home', parse_mode='html', reply_markup=markup)
+
+    elif message.text == 'Температурные грузы для курьеров':
+        markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
+        chapter1 = types.KeyboardButton('Температурные грузы Памятка для курьеров')
+        chapter2 = types.KeyboardButton('Тест Температурные грузы для курьеров')
+        markup.add(chapter1, chapter2)
+        bot.send_message(message.chat.id, 'Для возврата нажмите /home', parse_mode='html', reply_markup=markup)
+
+    elif message.text == 'Температурные грузы Памятка для курьеров':
+        doc = open('Documents/temper_courier_reminder.pdf', 'rb')
+        bot.send_document(message.chat.id, doc)
+        bot.send_message(message.chat.id, 'Для возврата нажмите /home')
+
+    elif message.text == 'Тест Температурные грузы для курьеров':
+        markup = types.InlineKeyboardMarkup()
+        markup.add(types.InlineKeyboardButton('Тест Температурные грузы для курьеров', url='https://short.startexam.com/tIx4yKMY'))
+        bot.send_message(message.chat.id, 'Перейдите по ссылке, чтобы пройти тестирование:', parse_mode='html', reply_markup=markup)
+        bot.send_message(message.chat.id, 'Для возврата в меню нажмите /home')
+
+    elif message.text == 'Температурные грузы для диспетчеров':
+        markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
+        chapter1 = types.KeyboardButton('Температурные грузы Памятка для диспетчеров')
+        chapter2 = types.KeyboardButton('Тест Температурные грузы для диспетчеров')
+        chapter3 = types.KeyboardButton('Температурные грузы презентация')
+        markup.add(chapter1, chapter3, chapter2)
+        bot.send_message(message.chat.id, 'Для возврата нажмите /home', parse_mode='html', reply_markup=markup)
+
+    elif message.text == 'Температурные грузы Памятка для диспетчеров':
+        doc = open('Documents/temper_dispatcher_reminder.pdf', 'rb')
+        bot.send_document(message.chat.id, doc)
+        bot.send_message(message.chat.id, 'Для возврата нажмите /home')
+
+    elif message.text == 'Температурные грузы презентация':
+        doc = open('Documents/temper_presentation.pdf', 'rb')
+        bot.send_document(message.chat.id, doc)
+        bot.send_message(message.chat.id, 'Для возврата нажмите /home')
+
+    elif message.text == 'Тест Температурные грузы для диспетчеров':
+        markup = types.InlineKeyboardMarkup()
+        markup.add(types.InlineKeyboardButton('Тест Температурные грузы для диспетчеров', url='https://short.startexam.com/X5bWMGgg'))
+        bot.send_message(message.chat.id, 'Перейдите по ссылке, чтобы пройти тестирование:', parse_mode='html', reply_markup=markup)
+        bot.send_message(message.chat.id, 'Для возврата в меню нажмите /home')
 
     elif message.text == 'Лучший из лучших':
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
