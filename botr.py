@@ -1023,7 +1023,8 @@ def get_user_text(message):
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
         chapter1 = types.KeyboardButton('1-й квартал 2023')
         chapter2 = types.KeyboardButton('2-й квартал 2023')
-        markup.add(chapter1, chapter2)
+        chapter3 = types.KeyboardButton('3-й квартал 2023')
+        markup.add(chapter1, chapter2, chapter3)
         bot.send_message(message.chat.id, 'Для возврата нажмите /home', parse_mode='html', reply_markup=markup)
 
     elif message.text == '1-й квартал 2023':
@@ -1036,6 +1037,13 @@ def get_user_text(message):
         markup = types.InlineKeyboardMarkup()
         markup.add(types.InlineKeyboardButton('Смотреть видео', url='https://disk.yandex.ru/i/XE3bkwNu4AhmEQ'))
         bot.send_message(message.chat.id, '<b>Лучший из лучших за 2-й квартал 2023 года</b>\nДля просмотра видео перейдите по ссылке:', reply_markup=markup)
+        bot.send_message(message.chat.id, 'Для возврата нажмите /home')
+
+    elif message.text == '3-й квартал 2023':
+        doc1 = open('Documents/best_emp_deliv_msk_III ch.pdf', 'rb')
+        bot.send_document(message.chat.id, doc1)
+        doc2 = open('Documents/best_emp_region_III ch.pdf', 'rb')
+        bot.send_document(message.chat.id, doc2)
         bot.send_message(message.chat.id, 'Для возврата нажмите /home')
 
     else:
