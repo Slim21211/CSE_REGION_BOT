@@ -135,77 +135,6 @@ def analytics(func: callable):
 
     return analytics_wrapper
 
-@bot.message_handler(commands=['home'])
-@analytics
-def start(message):
-    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    interns = types.KeyboardButton('Для стажеров')
-    study = types.KeyboardButton('Базовое обучение')
-    cargo = types.KeyboardButton('КАРГО')
-    post_office = types.KeyboardButton('ПВЗ и почтоматы')
-    fast_pay = types.KeyboardButton('СБП')
-    mentors = types.KeyboardButton('Для наставника')
-    quiz = types.KeyboardButton('ТЕСТЫ')
-    new_traces = types.KeyboardButton('НСТ')
-    vympelcom = types.KeyboardButton('Вымпелком')
-    netbynet = types.KeyboardButton('НэтБайНэт')
-    trade_in = types.KeyboardButton('ТРЕЙД-ИН')
-    self_collection = types.KeyboardButton('Самоинкассация')
-    vsd = types.KeyboardButton("ВСД")
-    casarte = types.KeyboardButton("Casarte")
-    jamilco = types.KeyboardButton("МФК Джамилько/Монэкс трейдинг-им")
-    best = types.KeyboardButton('Программа "Лучший сотрудник"')
-    rostelecom = types.KeyboardButton("Ростелеком")
-    temperature = types.KeyboardButton("Температурные грузы")
-    item = types.KeyboardButton("Функции для администраторов")
-    markup.row(interns, study)
-    markup.row(cargo, post_office)
-    markup.row(fast_pay, mentors)
-    markup.row(vympelcom, new_traces)
-    markup.row(trade_in, netbynet)
-    markup.row(vsd, self_collection)
-    markup.row(quiz, casarte)
-    markup.row(jamilco, rostelecom)
-    markup.row(temperature, best)
-    if message.from_user.id in admin_ids:
-        markup.add(item)
-    bot.send_message(message.chat.id,'Выберите раздел:', parse_mode='html', reply_markup=markup)
-
-@bot.message_handler(func=lambda message: message.text == "Функции для администраторов")
-def choose_command(message):
-    keyboard = types.InlineKeyboardMarkup()
-    command1_button = types.InlineKeyboardButton(text="Отправить сообщение в бот", callback_data="command1")
-
-    keyboard.add(command1_button)
-
-    bot.send_message(message.chat.id, "Выберите команду:\n"
-                                      "\n"
-                                      "Для возврата нажмите /home", reply_markup=keyboard)
-
-@bot.callback_query_handler(func=lambda call: True)
-def callback_handler(call):
-    if call.data == "command1":
-        bot.send_message(call.message.chat.id, "Здесь должна выполняться логика отправки сообщения в бот")
-
-@bot.message_handler(commands=['back'])
-@analytics
-def back(message):
-    markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
-    chapter1 = types.KeyboardButton('Программа Базового обучения')
-    chapter2 = types.KeyboardButton('Начало рабочего дня')
-    chapter3 = types.KeyboardButton('Расходные материалы')
-    chapter4 = types.KeyboardButton('Накладная')
-    chapter5 = types.KeyboardButton('Доставка лично в руки')
-    chapter6 = types.KeyboardButton('Доставка с возвратом')
-    chapter7 = types.KeyboardButton('Забор за наличные деньги')
-    chapter8 = types.KeyboardButton('Международное отправление')
-    chapter9 = types.KeyboardButton('Завершение рабочего дня')
-    markup.row(chapter1)
-    markup.add(chapter2, chapter3, chapter4, chapter5, chapter6, chapter7, chapter8, chapter9)
-    bot.send_message(message.chat.id, 'Выберите интересующий раздел\n'
-                                      '\n'
-                                      'Для возврата нажмите /home', parse_mode='html', reply_markup=markup)
-
 @bot.message_handler(commands=['send'])
 @analytics
 def send(message):
@@ -257,6 +186,77 @@ def cancel_send(message):
         bot.send_message(message.chat.id, 'Рассылка отменена.')
     else:
         bot.send_message(message.chat.id, 'Вы не можете отменить рассылку в этом боте.')
+
+@bot.message_handler(commands=['home'])
+@analytics
+def start(message):
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
+    interns = types.KeyboardButton('Для стажеров')
+    study = types.KeyboardButton('Базовое обучение')
+    cargo = types.KeyboardButton('КАРГО')
+    post_office = types.KeyboardButton('ПВЗ и почтоматы')
+    fast_pay = types.KeyboardButton('СБП')
+    mentors = types.KeyboardButton('Для наставника')
+    quiz = types.KeyboardButton('ТЕСТЫ')
+    new_traces = types.KeyboardButton('НСТ')
+    vympelcom = types.KeyboardButton('Вымпелком')
+    netbynet = types.KeyboardButton('НэтБайНэт')
+    trade_in = types.KeyboardButton('ТРЕЙД-ИН')
+    self_collection = types.KeyboardButton('Самоинкассация')
+    vsd = types.KeyboardButton("ВСД")
+    casarte = types.KeyboardButton("Casarte")
+    jamilco = types.KeyboardButton("МФК Джамилько/Монэкс трейдинг-им")
+    best = types.KeyboardButton('Программа "Лучший сотрудник"')
+    rostelecom = types.KeyboardButton("Ростелеком")
+    temperature = types.KeyboardButton("Температурные грузы")
+    item = types.KeyboardButton("Функции для администраторов")
+    markup.row(interns, study)
+    markup.row(cargo, post_office)
+    markup.row(fast_pay, mentors)
+    markup.row(vympelcom, new_traces)
+    markup.row(trade_in, netbynet)
+    markup.row(vsd, self_collection)
+    markup.row(quiz, casarte)
+    markup.row(jamilco, rostelecom)
+    markup.row(temperature, best)
+    if message.from_user.id in admin_ids:
+        markup.add(item)
+    bot.send_message(message.chat.id,'Выберите раздел:', parse_mode='html', reply_markup=markup)
+
+@bot.message_handler(func=lambda message: message.text == "Функции для администраторов")
+def choose_command(message):
+    keyboard = types.InlineKeyboardMarkup()
+    command1_button = types.InlineKeyboardButton(text="Отправить сообщение в бот", callback_data="command1")
+
+    keyboard.add(command1_button)
+
+    bot.send_message(message.chat.id, "Выберите команду:\n"
+                                      "\n"
+                                      "Для возврата нажмите /home", reply_markup=keyboard)
+
+@bot.callback_query_handler(func=lambda call: True)
+def callback_handler(call):
+    if call.data == "command1":
+        send(call.message)
+
+@bot.message_handler(commands=['back'])
+@analytics
+def back(message):
+    markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
+    chapter1 = types.KeyboardButton('Программа Базового обучения')
+    chapter2 = types.KeyboardButton('Начало рабочего дня')
+    chapter3 = types.KeyboardButton('Расходные материалы')
+    chapter4 = types.KeyboardButton('Накладная')
+    chapter5 = types.KeyboardButton('Доставка лично в руки')
+    chapter6 = types.KeyboardButton('Доставка с возвратом')
+    chapter7 = types.KeyboardButton('Забор за наличные деньги')
+    chapter8 = types.KeyboardButton('Международное отправление')
+    chapter9 = types.KeyboardButton('Завершение рабочего дня')
+    markup.row(chapter1)
+    markup.add(chapter2, chapter3, chapter4, chapter5, chapter6, chapter7, chapter8, chapter9)
+    bot.send_message(message.chat.id, 'Выберите интересующий раздел\n'
+                                      '\n'
+                                      'Для возврата нажмите /home', parse_mode='html', reply_markup=markup)
 
 @bot.message_handler(content_types=['text'])
 @analytics
