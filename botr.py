@@ -154,9 +154,10 @@ def start(message):
     vsd = types.KeyboardButton("ВСД")
     casarte = types.KeyboardButton("Casarte")
     jamilco = types.KeyboardButton("МФК Джамилько/Монэкс трейдинг-им")
-    best = types.KeyboardButton("Лучший из лучших")
+    best = types.KeyboardButton('Программа "Лучший сотрудник"')
     rostelecom = types.KeyboardButton("Ростелеком")
     temperature = types.KeyboardButton("Температурные грузы")
+    item = types.KeyboardButton("Функции для администраторов")
     markup.row(interns, study)
     markup.row(cargo, post_office)
     markup.row(fast_pay, mentors)
@@ -166,7 +167,25 @@ def start(message):
     markup.row(quiz, casarte)
     markup.row(jamilco, rostelecom)
     markup.row(temperature, best)
+    if message.from_user.id in admin_ids:
+        markup.add(item)
     bot.send_message(message.chat.id,'Выберите раздел:', parse_mode='html', reply_markup=markup)
+
+@bot.message_handler(func=lambda message: message.text == "Функции для администраторов")
+def choose_command(message):
+    keyboard = types.InlineKeyboardMarkup()
+    command1_button = types.InlineKeyboardButton(text="Отправить сообщение в бот", callback_data="command1")
+
+    keyboard.add(command1_button)
+
+    bot.send_message(message.chat.id, "Выберите команду:\n"
+                                      "\n"
+                                      "Для возврата нажмите /home", reply_markup=keyboard)
+
+@bot.callback_query_handler(func=lambda call: True)
+def callback_handler(call):
+    if call.data == "command1":
+        bot.send_message(call.message.chat.id, "Здесь должна выполняться логика отправки сообщения в бот")
 
 @bot.message_handler(commands=['back'])
 @analytics
@@ -1019,7 +1038,7 @@ def get_user_text(message):
         bot.send_message(message.chat.id, 'Перейдите по ссылке, чтобы пройти тестирование:', parse_mode='html', reply_markup=markup)
         bot.send_message(message.chat.id, 'Для возврата в меню нажмите /home')
 
-    elif message.text == 'Лучший из лучших':
+    elif message.text == 'Программа "Лучший сотрудник"':
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
         chapter1 = types.KeyboardButton('1-й квартал 2023')
         chapter2 = types.KeyboardButton('2-й квартал 2023')
