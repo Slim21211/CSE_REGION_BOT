@@ -205,7 +205,7 @@ def start(message):
     self_collection = types.KeyboardButton('Самоинкассация')
     vsd = types.KeyboardButton("ВСД")
     casarte = types.KeyboardButton("Casarte")
-    jamilco = types.KeyboardButton("МФК Джамилько/Монэкс трейдинг-им")
+    jamilco = types.KeyboardButton("МФК ДЖАМИЛЬКО МОН")
     best = types.KeyboardButton('Программа "Лучший сотрудник"')
     rostelecom = types.KeyboardButton("Ростелеком")
     temperature = types.KeyboardButton("Температурные грузы")
@@ -563,10 +563,13 @@ def get_user_text(message):
         bot.send_message(message.chat.id, 'Для возврата нажмите /home')
 
     elif message.text == 'ПВЗ и почтоматы':
-        markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=1)
+        markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
         chapter1 = types.KeyboardButton('Видео урок ПВЗ')
-        chapter2 = types.KeyboardButton('Инструкция по работе с ПВЗ и почтоматами')
-        markup.add(chapter1, chapter2)
+        chapter2 = types.KeyboardButton('Инструкция почтоматы Халва')
+        chapter3 = types.KeyboardButton('Презентация почтоматы Халва')
+        chapter4 = types.KeyboardButton('Тест Почтоматы и ПВЗ')
+        markup.row(chapter1, chapter2)
+        markup.row(chapter3, chapter4)
         bot.send_message(message.chat.id, 'Выберите интересующий раздел\n'
                                           '\n'
                                           'Для возврата нажмите /home', parse_mode='html', reply_markup=markup)
@@ -578,9 +581,15 @@ def get_user_text(message):
         bot.send_message(message.chat.id, '<b>Видео урок ПВЗ</b>\nДля просмотра видео перейдите по ссылке:', reply_markup=markup)
         bot.send_message(message.chat.id, 'Для возврата нажмите /home')
 
-    elif message.text == 'Инструкция по работе с ПВЗ и почтоматами':
+    elif message.text == 'Инструкция почтоматы Халва':
         bot.send_message(message.chat.id, 'Ознакомьтесь с инструкцией по закладке и изъятию отправлений в почтоматах Халва:')
         doc = open('Documents/halva.pdf', 'rb')
+        bot.send_document(message.chat.id, doc)
+        bot.send_message(message.chat.id, 'Для возврата нажмите /home', parse_mode='html')
+
+    elif message.text == 'Презентация почтоматы Халва':
+        bot.send_message(message.chat.id, 'Ознакомьтесь с инструкцией по закладке и изъятию отправлений в почтоматах Халва:')
+        doc = open('Documents/halva_presentation.pdf', 'rb')
         bot.send_document(message.chat.id, doc)
         bot.send_message(message.chat.id, 'Для возврата нажмите /home', parse_mode='html')
 
@@ -921,9 +930,13 @@ def get_user_text(message):
         chapter1 = types.KeyboardButton('Тест Вымпелком')
         chapter2 = types.KeyboardButton('Тест Нетбайнет (Мегафон)')
         chapter3 = types.KeyboardButton('Тест ТРЕЙД-ИН')
-        chapter4 = types.KeyboardButton('Аттестация сотрудников')
+        chapter4 = types.KeyboardButton('Тест по базовому обучению')
         chapter5 = types.KeyboardButton('Тест ЭДО - Вымпелком')
-        markup.add(chapter1, chapter5, chapter2, chapter3, chapter4)
+        chapter6 = types.KeyboardButton('Тест Почтоматы и ПВЗ')
+        chapter7 = types.KeyboardButton('Тест МФК ДЖАМИЛЬКО МОН')
+        chapter8 = types.KeyboardButton('Тест Ростелеком Регионы')
+        chapter9 = types.KeyboardButton('Тест Температурные грузы')
+        markup.add(chapter1, chapter5, chapter2, chapter3, chapter4, chapter6, chapter7, chapter8, chapter9)
         bot.send_message(message.chat.id, 'Для возврата нажмите /home', parse_mode='html', reply_markup=markup)
 
     elif message.text == 'Тест Вымпелком':
@@ -941,6 +954,43 @@ def get_user_text(message):
     elif message.text == 'Тест ТРЕЙД-ИН':
         markup = types.InlineKeyboardMarkup()
         markup.add(types.InlineKeyboardButton('Тест ТРЕЙД-ИН', url='https://short.startexam.com/_9kcW1mf'))
+        bot.send_message(message.chat.id, 'Перейдите по ссылке, чтобы пройти тестирование:', parse_mode='html', reply_markup=markup)
+        bot.send_message(message.chat.id, 'Для возврата в меню нажмите /home')
+
+    elif message.text == 'Тест Почтоматы и ПВЗ':
+        markup = types.InlineKeyboardMarkup()
+        markup.add(types.InlineKeyboardButton('Тест Почтоматы и ПВЗ', url='https://short.startexam.com/Yny_U_4t'))
+        bot.send_message(message.chat.id, 'Перейдите по ссылке, чтобы пройти тестирование:', parse_mode='html', reply_markup=markup)
+        bot.send_message(message.chat.id, 'Для возврата в меню нажмите /home')
+
+    elif message.text == 'Тест МФК ДЖАМИЛЬКО МОН':
+        markup = types.InlineKeyboardMarkup()
+        markup.add(types.InlineKeyboardButton('Тест МФК ДЖАМИЛЬКО МОН', url='https://short.startexam.com/secVT8QM'))
+        bot.send_message(message.chat.id, 'Перейдите по ссылке, чтобы пройти тестирование:', parse_mode='html', reply_markup=markup)
+        bot.send_message(message.chat.id, 'Для возврата в меню нажмите /home')
+
+    elif message.text == 'Тест Ростелеком Регионы':
+        markup = types.InlineKeyboardMarkup()
+        markup.add(types.InlineKeyboardButton('Тест Ростелеком Регионы', url='https://short.startexam.com/iA3VyF79'))
+        bot.send_message(message.chat.id, 'Перейдите по ссылке, чтобы пройти тестирование:', parse_mode='html', reply_markup=markup)
+        bot.send_message(message.chat.id, 'Для возврата в меню нажмите /home')
+
+    elif message.text == 'Тест Температурные грузы':
+        markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
+        chapter1 = types.KeyboardButton('Тест Температурные грузы для курьеров')
+        chapter2 = types.KeyboardButton('Тест Температурные грузы для диспетчеров')
+        markup.add(chapter1, chapter2)
+        bot.send_message(message.chat.id, 'Для возврата нажмите /home', parse_mode='html', reply_markup=markup)
+
+    elif message.text == 'Тест Температурные грузы для курьеров':
+        markup = types.InlineKeyboardMarkup()
+        markup.add(types.InlineKeyboardButton('Тест Температурные грузы для курьеров', url='https://short.startexam.com/tIx4yKMY'))
+        bot.send_message(message.chat.id, 'Перейдите по ссылке, чтобы пройти тестирование:', parse_mode='html', reply_markup=markup)
+        bot.send_message(message.chat.id, 'Для возврата в меню нажмите /home')
+
+    elif message.text == 'Тест Температурные грузы для диспетчеров':
+        markup = types.InlineKeyboardMarkup()
+        markup.add(types.InlineKeyboardButton('Тест Температурные грузы для диспетчеров', url='https://short.startexam.com/X5bWMGgg'))
         bot.send_message(message.chat.id, 'Перейдите по ссылке, чтобы пройти тестирование:', parse_mode='html', reply_markup=markup)
         bot.send_message(message.chat.id, 'Для возврата в меню нажмите /home')
 
@@ -963,7 +1013,14 @@ def get_user_text(message):
                                           '\n'
                                           'Для возврата нажмите /home')
 
-    elif message.text == 'МФК Джамилько/Монэкс трейдинг-им':
+    elif message.text == 'МФК ДЖАМИЛЬКО МОН':
+        markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
+        chapter1 = types.KeyboardButton('Презентация МФК ДЖАМИЛЬКО МОН')
+        chapter2 = types.KeyboardButton('Тест МФК ДЖАМИЛЬКО МОН')
+        markup.add(chapter1, chapter2)
+        bot.send_message(message.chat.id, 'Для возврата нажмите /home', parse_mode='html', reply_markup=markup)
+
+    elif message.text == 'Презентация МФК ДЖАМИЛЬКО МОН':
         doc = open('Documents/jamilco_presentation.pdf', 'rb')
         bot.send_document(message.chat.id, doc)
         bot.send_message(message.chat.id, 'Для возврата нажмите /home')
@@ -983,6 +1040,13 @@ def get_user_text(message):
         bot.send_message(message.chat.id, 'Для возврата нажмите /home')
 
     elif message.text == 'Ростелеком Регионы':
+        markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
+        chapter1 = types.KeyboardButton('Ростелеком Регионы теория')
+        chapter2 = types.KeyboardButton('Тест Ростелеком Регионы')
+        markup.add(chapter1, chapter2)
+        bot.send_message(message.chat.id, 'Для возврата нажмите /home', parse_mode='html', reply_markup=markup)
+
+    elif message.text == 'Ростелеком Регионы теория':
         doc = open('Documents/rostelecom_region.pdf', 'rb')
         bot.send_document(message.chat.id, doc)
         img = open('Documents/rostelecom_poster.jpg', 'rb')
