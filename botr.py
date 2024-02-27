@@ -209,6 +209,7 @@ def start(message):
     best = types.KeyboardButton('Программа "Лучший сотрудник"')
     rostelecom = types.KeyboardButton("Ростелеком")
     temperature = types.KeyboardButton("Температурные грузы")
+    high_education = types.KeyboardButton("Продвинутое обучение")
     item = types.KeyboardButton("Функции для администраторов")
     markup.row(interns, study)
     markup.row(cargo, post_office)
@@ -219,6 +220,7 @@ def start(message):
     markup.row(quiz, casarte)
     markup.row(jamilco, rostelecom)
     markup.row(temperature, best)
+    markup.row(high_education)
     if message.from_user.id in admin_ids:
         markup.add(item)
     bot.send_message(message.chat.id,'Выберите раздел:', parse_mode='html', reply_markup=markup)
@@ -982,18 +984,6 @@ def get_user_text(message):
         markup.add(chapter1, chapter2)
         bot.send_message(message.chat.id, 'Для возврата нажмите /home', parse_mode='html', reply_markup=markup)
 
-    elif message.text == 'Тест Температурные грузы для курьеров':
-        markup = types.InlineKeyboardMarkup()
-        markup.add(types.InlineKeyboardButton('Тест Температурные грузы для курьеров', url='https://short.startexam.com/tIx4yKMY'))
-        bot.send_message(message.chat.id, 'Перейдите по ссылке, чтобы пройти тестирование:', parse_mode='html', reply_markup=markup)
-        bot.send_message(message.chat.id, 'Для возврата в меню нажмите /home')
-
-    elif message.text == 'Тест Температурные грузы для диспетчеров':
-        markup = types.InlineKeyboardMarkup()
-        markup.add(types.InlineKeyboardButton('Тест Температурные грузы для диспетчеров', url='https://short.startexam.com/X5bWMGgg'))
-        bot.send_message(message.chat.id, 'Перейдите по ссылке, чтобы пройти тестирование:', parse_mode='html', reply_markup=markup)
-        bot.send_message(message.chat.id, 'Для возврата в меню нажмите /home')
-
     elif message.text == 'ВСД':
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
         chapter1 = types.KeyboardButton('Памятка по заполнению ВСД клиентов JTI, Нестле')
@@ -1100,6 +1090,34 @@ def get_user_text(message):
         markup = types.InlineKeyboardMarkup()
         markup.add(types.InlineKeyboardButton('Тест Температурные грузы для диспетчеров', url='https://short.startexam.com/X5bWMGgg'))
         bot.send_message(message.chat.id, 'Перейдите по ссылке, чтобы пройти тестирование:', parse_mode='html', reply_markup=markup)
+        bot.send_message(message.chat.id, 'Для возврата в меню нажмите /home')
+
+    elif message.text == 'Продвинутое обучение':
+        markup = types.InlineKeyboardMarkup()
+        markup.add(types.InlineKeyboardButton('Смотреть видео',
+                                              url='https://drive.google.com/file/d/1CMYy-gHa166F-n_ND7pZpmVgRvngrHEm/view?usp=drive_link'))
+        bot.send_message(message.chat.id, '<b>Вымпелком ЭДО</b>\nДля просмотра видео перейдите по ссылке:',
+                         reply_markup=markup)
+        markup = types.InlineKeyboardMarkup()
+        markup.add(types.InlineKeyboardButton('Смотреть видео',
+                                              url='https://drive.google.com/file/d/1PQMLTb5qL59gj5QDT6G0j0OVBCFug-xi/view?usp=drive_link'))
+        bot.send_message(message.chat.id, '<b>Вымпелком</b>\nДля просмотра видео перейдите по ссылке:',
+                         reply_markup=markup)
+        markup = types.InlineKeyboardMarkup()
+        markup.add(types.InlineKeyboardButton('Смотреть видео',
+                                              url='https://drive.google.com/file/d/1lG3ykpqKgnjaM53ShjYHT20fQacuQm7N/view?usp=drive_link'))
+        bot.send_message(message.chat.id, '<b>Джамилько</b>\nДля просмотра видео перейдите по ссылке:',
+                         reply_markup=markup)
+        markup = types.InlineKeyboardMarkup()
+        markup.add(types.InlineKeyboardButton('Смотреть видео',
+                                              url='https://drive.google.com/file/d/1XFQpo6V32_dRcoOG5MSamr-JbFmn5JDq/view?usp=drive_link'))
+        bot.send_message(message.chat.id, '<b>ТрейдИн</b>\nДля просмотра видео перейдите по ссылке:',
+                         reply_markup=markup)
+        markup = types.InlineKeyboardMarkup()
+        markup.add(types.InlineKeyboardButton('Смотреть видео',
+                                              url='https://drive.google.com/file/d/1GEdgGAA9cK9FKqJzeGCta0CvmIPirtvT/view?usp=drive_link'))
+        bot.send_message(message.chat.id, '<b>Температурные грузы</b>\nДля просмотра видео перейдите по ссылке:',
+                         reply_markup=markup)
         bot.send_message(message.chat.id, 'Для возврата в меню нажмите /home')
 
     elif message.text == 'Программа "Лучший сотрудник"':
