@@ -260,6 +260,18 @@ def back(message):
                                       '\n'
                                       'Для возврата нажмите /home', parse_mode='html', reply_markup=markup)
 
+
+def send_document_with_message(bot, chat_id, message_text, document_path, final_text=True, start_text=True ):
+    if start_text:
+        bot.send_message(chat_id, message_text)
+
+    with open(document_path, 'rb') as doc:
+        bot.send_document(chat_id, doc)
+    if final_text:
+        bot.send_message(chat_id, 'Для возврата нажмите /home', parse_mode='html')
+
+
+
 @bot.message_handler(content_types=['text'])
 @analytics
 def get_user_text(message):
@@ -273,16 +285,12 @@ def get_user_text(message):
                                           'Для возврата нажмите /home', parse_mode='html', reply_markup=markup)
 
     elif message.text == 'Памятка стажера':
-        bot.send_message(message.chat.id, 'Ознакомьтесь с памяткой для стажеров:')
-        doc = open('Documents/interns_guide.pdf', 'rb')
-        bot.send_document(message.chat.id, doc)
-        bot.send_message(message.chat.id, 'Для возврата нажмите /home', parse_mode='html')
+        send_document_with_message(bot, message.chat.id, 'Ознакомьтесь с памяткой для стажеров:', 'Documents/interns_guide.pdf')
 
     elif message.text == 'Контакты МСК':
-        bot.send_message(message.chat.id, 'Здесь Вы можете посмотреть контакты сотрудников подразделений Москвы и Московской области:')
-        doc = open('Documents/contacts.pdf', 'rb')
-        bot.send_document(message.chat.id, doc)
-        bot.send_message(message.chat.id, 'Для возврата нажмите /home', parse_mode='html')
+        send_document_with_message(bot, message.chat.id, 'Здесь Вы можете посмотреть контакты сотрудников подразделений Москвы и Московской области:',
+                                   'Documents/contacts.pdf')
+
 
     elif message.text == 'Базовое обучение':
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
@@ -304,10 +312,9 @@ def get_user_text(message):
                                           'Для возврата нажмите /home', parse_mode='html', reply_markup=markup)
 
     elif message.text == 'Программа Базового обучения':
-        doc = open('Documents/study_program.pdf', 'rb')
-        bot.send_message(message.chat.id, 'Ознакомьтесь с программой обучения стажера:')
-        bot.send_document(message.chat.id, doc)
-        bot.send_message(message.chat.id, 'Для возврата нажмите /home')
+        send_document_with_message(bot, message.chat.id,
+                                   'Ознакомьтесь с программой базового обучения:',
+                                   'Documents/study_program.pdf')
 
     elif message.text == 'Начало рабочего дня':
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
@@ -323,9 +330,9 @@ def get_user_text(message):
                                           'Для возврата к списку разделов нажмите /back', parse_mode='html', reply_markup=markup)
 
     elif message.text == 'Начало рабочего дня (текст)':
-        doc = open('Documents/start_day.pdf', 'rb')
-        bot.send_document(message.chat.id, doc)
-        bot.send_message(message.chat.id, 'Для возврата нажмите /back')
+        send_document_with_message(bot, message.chat.id,
+                                   'Ознакомьтесь с порядком действий в начале рабочего дня:',
+                                   'Documents/start_day.pdf')
 
     elif message.text == 'Начало рабочего дня (видео)':
         markup = types.InlineKeyboardMarkup()
@@ -349,9 +356,9 @@ def get_user_text(message):
                                           'Для возврата к списку разделов нажмите /back', parse_mode='html', reply_markup=markup)
 
     elif message.text == 'Расходные материалы (текст)':
-        doc = open('Documents/expend_materials.pdf', 'rb')
-        bot.send_document(message.chat.id, doc)
-        bot.send_message(message.chat.id, 'Для возврата нажмите /back')
+        send_document_with_message(bot, message.chat.id,
+                                   'Ознакомьтесь с порядком работы с расхоными материалами:',
+                                   'Documents/expend_materials.pdf')
 
     elif message.text == 'Расходные материалы (видео)':
         markup = types.InlineKeyboardMarkup()
@@ -374,9 +381,9 @@ def get_user_text(message):
                                           'Для возврата к списку разделов нажмите /back', parse_mode='html', reply_markup=markup)
 
     elif message.text == 'Накладная (текст)':
-        doc = open('Documents/invoice.pdf', 'rb')
-        bot.send_document(message.chat.id, doc)
-        bot.send_message(message.chat.id, 'Для возврата нажмите /back')
+        send_document_with_message(bot, message.chat.id,
+                                   'Ознакомьтесь с порядком работы с накладными:',
+                                   'Documents/invoice.pdf')
 
     elif message.text == 'Накладная (видео)':
         markup = types.InlineKeyboardMarkup()
@@ -400,9 +407,9 @@ def get_user_text(message):
                                           'Для возврата к списку разделов нажмите /back', parse_mode='html', reply_markup=markup)
 
     elif message.text == 'Доставка лично в руки (текст)':
-        doc = open('Documents/deliv_person.pdf', 'rb')
-        bot.send_document(message.chat.id, doc)
-        bot.send_message(message.chat.id, 'Для возврата нажмите /back')
+        send_document_with_message(bot, message.chat.id,
+                                   'Ознакомьтесь с порядком работы при доставке лично в руки:',
+                                   'Documents/deliv_person.pdf')
 
     elif message.text == 'Доставка лично в руки (видео)':
         markup = types.InlineKeyboardMarkup()
@@ -424,10 +431,11 @@ def get_user_text(message):
                                           'Для возврата в начало нажмите /home\n'
                                           '\n'
                                           'Для возврата к списку разделов нажмите /back', parse_mode='html', reply_markup=markup)
+
     elif message.text == 'Доставка с возвратом (текст)':
-        doc = open('Documents/return_shipping.pdf', 'rb')
-        bot.send_document(message.chat.id, doc)
-        bot.send_message(message.chat.id, 'Для возврата нажмите /back')
+        send_document_with_message(bot, message.chat.id,
+                                   'Ознакомьтесь с порядком работы при доставке с возвратом:',
+                                   'Documents/return_shipping.pdf')
 
     elif message.text == 'Доставка с возвратом (видео)':
         markup = types.InlineKeyboardMarkup()
@@ -451,9 +459,9 @@ def get_user_text(message):
                                           'Для возврата к списку разделов нажмите /back', parse_mode='html', reply_markup=markup)
 
     elif message.text == 'Забор за наличные деньги (текст)':
-        doc = open('Documents/reception_cash.pdf', 'rb')
-        bot.send_document(message.chat.id, doc)
-        bot.send_message(message.chat.id, 'Для возврата нажмите /back')
+        send_document_with_message(bot, message.chat.id,
+                                   'Ознакомьтесь с порядком работы при заборе за наличные деньги:',
+                                   'Documents/reception_cash.pdf')
 
     elif message.text == 'Забор за наличные деньги (видео)':
         markup = types.InlineKeyboardMarkup()
@@ -477,9 +485,9 @@ def get_user_text(message):
                                           'Для возврата к списку разделов нажмите /back', parse_mode='html', reply_markup=markup)
 
     elif message.text == 'Международное отправление (текст)':
-        doc = open('Documents/international_shipping.pdf', 'rb')
-        bot.send_document(message.chat.id, doc)
-        bot.send_message(message.chat.id, 'Для возврата нажмите /back')
+        send_document_with_message(bot, message.chat.id,
+                                   'Ознакомьтесь с порядком работы при международном отправлении:',
+                                   'Documents/international_shipping.pdf')
 
     elif message.text == 'Международное отправление (видео)':
         markup = types.InlineKeyboardMarkup()
@@ -503,9 +511,9 @@ def get_user_text(message):
                                           'Для возврата к списку разделов нажмите /back', parse_mode='html', reply_markup=markup)
 
     elif message.text == 'Завершение рабочего дня (текст)':
-        doc = open('Documents/end_day.pdf', 'rb')
-        bot.send_document(message.chat.id, doc)
-        bot.send_message(message.chat.id, 'Для возврата нажмите /back')
+        send_document_with_message(bot, message.chat.id,
+                                   'Ознакомьтесь с порядком работы при завершении рабочего дня:',
+                                   'Documents/end_day.pdf')
 
     elif message.text == 'Завершение рабочего дня (видео)':
         markup = types.InlineKeyboardMarkup()
@@ -541,28 +549,24 @@ def get_user_text(message):
         bot.send_message(message.chat.id, 'Для возврата нажмите /home')
 
     elif message.text == 'Памятка Карго':
-        doc = open('Documents/cargo_manual.pdf', 'rb')
-        bot.send_message(message.chat.id, 'Ознакомьтесь с инструкцией по работе с мобильным приложением Cargo5:')
-        bot.send_document(message.chat.id, doc)
-        bot.send_message(message.chat.id, 'Для возврата нажмите /home')
+        send_document_with_message(bot, message.chat.id,
+                                   'Ознакомьтесь с инструкцией по работе с мобильным приложением Cargo5:',
+                                   'Documents/cargo_manual.pdf')
 
     elif message.text == 'Схема трейсов':
-        doc = open('Documents/traces_scheme.pdf', 'rb')
-        bot.send_message(message.chat.id, 'Ознакомьтесь со схемой трейсов:')
-        bot.send_document(message.chat.id, doc)
-        bot.send_message(message.chat.id, 'Для возврата нажмите /home')
+        send_document_with_message(bot, message.chat.id,
+                                   'Ознакомьтесь со схемой трейсов:',
+                                   'Documents/traces_scheme.pdf')
 
     elif message.text == 'Презентация Карго':
-        doc = open('Documents/cargo-presentation.pdf', 'rb')
-        bot.send_message(message.chat.id, 'Ознакомьтесь с презентацией по работе в мобильном приложении:')
-        bot.send_document(message.chat.id, doc)
-        bot.send_message(message.chat.id, 'Для возврата нажмите /home')
+        send_document_with_message(bot, message.chat.id,
+                                   'Ознакомьтесь с презентацией по работе в мобильном приложении:',
+                                   'Documents/cargo-presentation.pdf')
 
     elif message.text == 'Электронные чеки':
-        doc = open('Documents/e_chek.pdf', 'rb')
-        bot.send_message(message.chat.id, 'Ознакомьтесь с инструкцией по работе с интернет-магазинами (электронные чеки):')
-        bot.send_document(message.chat.id, doc)
-        bot.send_message(message.chat.id, 'Для возврата нажмите /home')
+        send_document_with_message(bot, message.chat.id,
+                                   'Ознакомьтесь с инструкцией по работе с интернет-магазинами (электронные чеки):',
+                                   'Documents/e_chek.pdf')
 
     elif message.text == 'ПВЗ и почтоматы':
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
@@ -584,16 +588,14 @@ def get_user_text(message):
         bot.send_message(message.chat.id, 'Для возврата нажмите /home')
 
     elif message.text == 'Инструкция почтоматы Халва':
-        bot.send_message(message.chat.id, 'Ознакомьтесь с инструкцией по закладке и изъятию отправлений в почтоматах Халва:')
-        doc = open('Documents/halva.pdf', 'rb')
-        bot.send_document(message.chat.id, doc)
-        bot.send_message(message.chat.id, 'Для возврата нажмите /home', parse_mode='html')
+        send_document_with_message(bot, message.chat.id,
+                                   'Ознакомьтесь с инструкцией по закладке и изъятию отправлений в почтоматах Халва:',
+                                   'Documents/halva.pdf')
 
     elif message.text == 'Презентация почтоматы Халва':
-        bot.send_message(message.chat.id, 'Ознакомьтесь с инструкцией по закладке и изъятию отправлений в почтоматах Халва:')
-        doc = open('Documents/halva_presentation.pdf', 'rb')
-        bot.send_document(message.chat.id, doc)
-        bot.send_message(message.chat.id, 'Для возврата нажмите /home', parse_mode='html')
+        send_document_with_message(bot, message.chat.id,
+                                   'Ознакомьтесь с инструкцией по закладке и изъятию отправлений в почтоматах Халва:',
+                                   'Documents/halva_presentation.pdf')
 
     elif message.text == 'СБП':
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
@@ -610,19 +612,19 @@ def get_user_text(message):
                                           'Для возврата назад нажмите /home', parse_mode='html', reply_markup=markup)
 
     elif message.text == 'Памятка по СБП':
-        doc = open('Documents/fast_pay_reminder.pdf', 'rb')
-        bot.send_document(message.chat.id, doc)
-        bot.send_message(message.chat.id, 'Для возврата нажмите /home')
+        send_document_with_message(bot, message.chat.id,
+                                   'Ознакомьтесь порядком действий при облате через СБП:',
+                                   'Documents/fast_pay_reminder.pdf')
 
     elif message.text == 'Инструкция по СБП':
-        doc = open('Documents/fast_pay_manual.pdf', 'rb')
-        bot.send_document(message.chat.id, doc)
-        bot.send_message(message.chat.id, 'Для возврата нажмите /home')
+        send_document_with_message(bot, message.chat.id,
+                                   'Ознакомьтесь порядком действий при облате через СБП:',
+                                   'Documents/fast_pay_manual.pdf')
 
     elif message.text == 'Скрипт для курьеров по СБП':
-        doc = open('Documents/fast_pay_script.pdf', 'rb')
-        bot.send_document(message.chat.id, doc)
-        bot.send_message(message.chat.id, 'Для возврата нажмите /home')
+        send_document_with_message(bot, message.chat.id,
+                                   'Ознакомьтесь со скриптом для курьеров при оплате через СБП:',
+                                   'Documents/fast_pay_script.pdf')
 
     elif message.text == 'Видео урок СБП':
         markup = types.InlineKeyboardMarkup()
@@ -650,14 +652,14 @@ def get_user_text(message):
         bot.send_message(message.chat.id, 'Для возврата нажмите /home')
 
     elif message.text == 'Презентация для наставников':
-        doc = open('Documents/mentors_presentation.pdf', 'rb')
-        bot.send_document(message.chat.id, doc)
-        bot.send_message(message.chat.id, 'Для возврата нажмите /home')
+        send_document_with_message(bot, message.chat.id,
+                                   'Ознакомьтесь с презентацией для наставников:',
+                                   'Documents/mentors_presentation.pdf')
 
     elif message.text == 'Памятка для наставников':
-        doc = open('Documents/mentors_reminder.pdf', 'rb')
-        bot.send_document(message.chat.id, doc)
-        bot.send_message(message.chat.id, 'Для возврата нажмите /home')
+        send_document_with_message(bot, message.chat.id,
+                                   'Ознакомьтесь с памяткой для наставников:',
+                                   'Documents/mentors_reminder.pdf')
 
     elif message.text == 'Тест для наставников':
         markup = types.InlineKeyboardMarkup()
@@ -680,19 +682,19 @@ def get_user_text(message):
         bot.send_message(message.chat.id, 'Для возврата нажмите /home', parse_mode='html', reply_markup=markup)
 
     elif message.text == 'Новая система трейсов':
-        doc = open('Documents/traces_new_system.pdf', 'rb')
-        bot.send_document(message.chat.id, doc)
-        bot.send_message(message.chat.id, 'Для возврата нажмите /home')
+        send_document_with_message(bot, message.chat.id,
+                                   'Ознакомьтесь с новой системой трейсов:',
+                                   'Documents/traces_new_system.pdf')
 
     elif message.text == 'Памятка НСТ':
-        doc = open('Documents/traces_reminder.pdf', 'rb')
-        bot.send_document(message.chat.id, doc)
-        bot.send_message(message.chat.id, 'Для возврата нажмите /home')
+        send_document_with_message(bot, message.chat.id,
+                                   'Ознакомьтесь с памяткой по новой системе трейсов:',
+                                   'Documents/traces_reminder.pdf')
 
     elif message.text == 'Схема НСТ':
-        doc = open('Documents/traces_scheme.pdf', 'rb')
-        bot.send_document(message.chat.id, doc)
-        bot.send_message(message.chat.id, 'Для возврата нажмите /home')
+        send_document_with_message(bot, message.chat.id,
+                                   'Ознакомьтесь со схемой новой системы трейсов:',
+                                   'Documents/traces_scheme.pdf')
 
     elif message.text == 'НСТ курьеры':
         markup = types.InlineKeyboardMarkup()
@@ -706,8 +708,9 @@ def get_user_text(message):
         bot.send_message(message.chat.id, 'Для возврата нажмите /home')
 
     elif message.text == 'НСТ диспетчеры':
-        doc = open('Documents/disp_traces_presentation.pdf', 'rb')
-        bot.send_document(message.chat.id, doc)
+        send_document_with_message(bot, message.chat.id,
+                                   'Ознакомьтесь с новой системой трейсов для диспетчеров:',
+                                   'Documents/disp_traces_presentation.pdf')
         markup = types.InlineKeyboardMarkup()
         markup.add(types.InlineKeyboardButton('Смотреть видео',
                                               url='https://drive.google.com/file/d/1Vfml-Iq-vE77Eru7ELcV8nGTI_twHWLf/view?usp=drive_link'))
@@ -721,23 +724,24 @@ def get_user_text(message):
         bot.send_message(message.chat.id, 'Для возврата нажмите /home')
 
     elif message.text == 'Работа с трейсами ПВЗ':
-        doc = open('Documents/traces_work.pdf', 'rb')
-        bot.send_document(message.chat.id, doc)
-        bot.send_message(message.chat.id, 'Для возврата нажмите /home')
+        send_document_with_message(bot, message.chat.id,
+                                   'Ознакомьтесь с порядком работы с трейсами ПВЗ:',
+                                   'Documents/traces_work.pdf')
 
     elif message.text == 'НСТ логист':
-        doc = open('Documents/traces_logist.pdf', 'rb')
-        bot.send_document(message.chat.id, doc)
-        bot.send_message(message.chat.id, 'Для возврата нажмите /home')
+        send_document_with_message(bot, message.chat.id,
+                                   'Ознакомьтесь с новой системой трейсов для логистов:',
+                                   'Documents/traces_logist.pdf')
 
     elif message.text == 'НСТ склад хранения':
-        doc = open('Documents/traces_storage.pdf', 'rb')
-        bot.send_document(message.chat.id, doc)
-        bot.send_message(message.chat.id, 'Для возврата нажмите /home')
+        send_document_with_message(bot, message.chat.id,
+                                   'Ознакомьтесь с новой системой трейсов для склада хранения:',
+                                   'Documents/traces_storage.pdf')
 
     elif message.text == 'НСТ склад':
-        doc = open('Documents/traces_storehouse.pdf', 'rb')
-        bot.send_document(message.chat.id, doc)
+        send_document_with_message(bot, message.chat.id,
+                                   'Ознакомьтесь с новой системой трейсов для склада:',
+                                   'Documents/traces_storehouse.pdf', False)
         markup = types.InlineKeyboardMarkup()
         markup.add(types.InlineKeyboardButton('Смотреть видео',
                                               url='https://drive.google.com/file/d/16qLMw3R54YOCVIvMTavlRdwvurQm5hz3/view?usp=drive_link'))
@@ -763,25 +767,24 @@ def get_user_text(message):
                                           '\n'
                                           'Для возврата нажмите /home', parse_mode='html', reply_markup=markup)
     elif message.text == 'Инструкции Вымпелком':
-        doc1 = open('Documents/return ABO.pdf', 'rb')
-        bot.send_message(message.chat.id, 'Инструкция для курьера (Возврат АБО):')
-        bot.send_document(message.chat.id, doc1)
-        doc2 = open('Documents/change ABO.pdf', 'rb')
-        bot.send_message(message.chat.id, 'Инструкция для курьера (Замена АБО):')
-        bot.send_document(message.chat.id, doc2)
-        doc3 = open('Documents/delivery ABO.pdf', 'rb')
-        bot.send_message(message.chat.id, 'Инструкция для курьера (Доставка АБО):')
-        bot.send_document(message.chat.id, doc3)
-        doc4 = open('Documents/delivery SIM.pdf', 'rb')
-        bot.send_message(message.chat.id, 'Инструкция для курьера (Доставка СИМ):')
-        bot.send_document(message.chat.id, doc4)
-        doc5 = open('Documents/delivery lite.pdf', 'rb')
-        bot.send_message(message.chat.id, 'Инструкция для курьера (Доставка Lite):')
-        bot.send_document(message.chat.id, doc5)
-        doc6 = open('Documents/damage ABO.pdf', 'rb')
-        bot.send_message(message.chat.id, 'Инструкция ВК ШПД Порченное АБО:')
-        bot.send_document(message.chat.id, doc6)
-        bot.send_message(message.chat.id, 'Для возврата нажмите /home')
+        send_document_with_message(bot, message.chat.id,
+                                   'Инструкция для курьера (Возврат АБО):',
+                                   'Documents/return ABO.pdf', False)
+        send_document_with_message(bot, message.chat.id,
+                                   'Инструкция для курьера (Замена АБО):',
+                                   'Documents/change ABO.pdf', False)
+        send_document_with_message(bot, message.chat.id,
+                                   'Инструкция для курьера (Доставка АБО):',
+                                   'Documents/delivery ABO.pdf', False)
+        send_document_with_message(bot, message.chat.id,
+                                   'Инструкция для курьера (Доставка СИМ):',
+                                   'Documents/delivery SIM.pdf', False)
+        send_document_with_message(bot, message.chat.id,
+                                   'Инструкция для курьера (Доставка Lite):',
+                                   'Documents/delivery lite.pdf', False)
+        send_document_with_message(bot, message.chat.id,
+                                   'Инструкция ВК ШПД Порченное АБО:',
+                                   'Documents/damage ABO.pdf')
 
     elif message.text == 'Видео инструкции Вымпелком':
         markup = types.InlineKeyboardMarkup()
@@ -804,9 +807,9 @@ def get_user_text(message):
         bot.send_message(message.chat.id, 'Для возврата нажмите /home')
 
     elif message.text == 'Презентация Вымпелком':
-        doc = open('Documents/vympel_presentation.pdf', 'rb')
-        bot.send_document(message.chat.id, doc)
-        bot.send_message(message.chat.id, 'Для возврата нажмите /home')
+        send_document_with_message(bot, message.chat.id,
+                                   'Ознакомьтесь с презентацией Вымпелком',
+                                   'Documents/vympel_presentation.pdf')
 
     elif message.text == 'ЭДО':
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
@@ -819,9 +822,9 @@ def get_user_text(message):
                                           'Для возврата нажмите /home', parse_mode='html', reply_markup=markup)
 
     elif message.text == 'Презентация ЭДО - Вымпелком':
-        doc = open('Documents/vympel_presentation_EDM.pdf', 'rb')
-        bot.send_document(message.chat.id, doc)
-        bot.send_message(message.chat.id, 'Для возврата нажмите /home')
+        send_document_with_message(bot, message.chat.id,
+                                   'Ознакомьтесь с презентацией ЭДО - Вымпелком',
+                                   'Documents/vympel_presentation_EDM.pdf')
 
     elif message.text == 'Видеоурок ЭДО - Вымпелком':
         # video = open('', 'rb')
@@ -838,10 +841,12 @@ def get_user_text(message):
         bot.send_message(message.chat.id, 'Для возврата в меню нажмите /home')
 
     elif message.text == 'НэтБайНэт':
-        doc1 = open('Documents/netbynet.pdf', 'rb')
-        bot.send_document(message.chat.id, doc1)
-        doc2 = open('Documents/netbynet_instruction.pdf', 'rb')
-        bot.send_document(message.chat.id, doc2)
+        send_document_with_message(bot, message.chat.id,
+                                   'Ознакомьтесь с презентацией ЭДО - Вымпелком',
+                                   'Documents/netbynet.pdf', False, False)
+        send_document_with_message(bot, message.chat.id,
+                                   'Ознакомьтесь с презентацией ЭДО - Вымпелком',
+                                   'Documents/netbynet_instruction.pdf', True, False)
 
     elif message.text == 'ТРЕЙД-ИН':
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
@@ -854,14 +859,14 @@ def get_user_text(message):
         bot.send_message(message.chat.id, 'Для возврата нажмите /home', parse_mode='html', reply_markup=markup)
 
     elif message.text == 'Памятка ТРЕЙД_ИН':
-        doc = open('Documents/instruction_trade-in.pdf', 'rb')
-        bot.send_document(message.chat.id, doc)
-        bot.send_message(message.chat.id, 'Для возврата нажмите /home')
+        send_document_with_message(bot, message.chat.id,
+                                   'Ознакомьтесь с памяткой по ТРЕЙД_ИН:',
+                                   'Documents/instruction_trade-in.pdf')
 
     elif message.text == 'Презентация ТРЕЙД-ИН':
-        doc = open('Documents/presentation_trade-in.pdf', 'rb')
-        bot.send_document(message.chat.id, doc)
-        bot.send_message(message.chat.id, 'Для возврата нажмите /home')
+        send_document_with_message(bot, message.chat.id,
+                                   'Ознакомьтесь с презентацией по ТРЕЙД_ИН:',
+                                   'Documents/presentation_trade-in.pdf')
 
     elif message.text == 'Видео процесса проверки Б/У устройства':
         markup = types.InlineKeyboardMarkup()
@@ -884,17 +889,20 @@ def get_user_text(message):
         bot.send_message(message.chat.id, 'Для возврата нажмите /home', parse_mode='html', reply_markup=markup)
 
     elif message.text == 'Самоинкассация Москва и МО':
-        doc = open('Documents/self_collection_region_msk_sber.pdf', 'rb')
-        bot.send_document(message.chat.id, doc)
-        doc = open('Documents/self_collection_MKB.pdf', 'rb')
-        bot.send_document(message.chat.id, doc)
-        doc = open('Documents/self_collection_eleksnet.pdf', 'rb')
-        bot.send_document(message.chat.id, doc)
-        bot.send_message(message.chat.id, 'Для возврата нажмите /home')
+        send_document_with_message(bot, message.chat.id,
+                                   'Ознакомьтесь с порядком действий при самоинкассации в Москве и МО:',
+                                   'Documents/self_collection_region_msk_sber.pdf', False)
+        send_document_with_message(bot, message.chat.id,
+                                   'Ознакомьтесь с порядком действий при самоинкассации в Москве и МО:',
+                                   'Documents/self_collection_MKB.pdf', False, False)
+        send_document_with_message(bot, message.chat.id,
+                                   'Ознакомьтесь с порядком действий при самоинкассации в Москве и МО:',
+                                   'Documents/self_collection_eleksnet.pdf', True, False)
 
     elif message.text == 'Самоинкассация Регионы':
-        doc = open('Documents/self_collection_region_sber.pdf', 'rb')
-        bot.send_document(message.chat.id, doc)
+        send_document_with_message(bot, message.chat.id,
+                                   'Ознакомьтесь с порядком действий при самоинкассации в регионах:',
+                                   'Documents/self_collection_region_sber.pdf', False)
         markup = types.InlineKeyboardMarkup()
         markup.add(types.InlineKeyboardButton('Смотреть видео',
                                               url='https://drive.google.com/file/d/1eUNFf6wzOsibqOHQFhpYj5OspkcgXPVy/view?usp=drive_link'))
@@ -903,11 +911,12 @@ def get_user_text(message):
         bot.send_message(message.chat.id, 'Для возврата нажмите /home')
 
     elif message.text == 'Casarte':
-        doc = open('Documents/casarte_presentation.pdf', 'rb')
-        bot.send_document(message.chat.id, doc)
-        doc = open('Documents/casarte_reminder.pdf', 'rb')
-        bot.send_document(message.chat.id, doc)
-        bot.send_message(message.chat.id, 'Для возврата нажмите /home')
+        send_document_with_message(bot, message.chat.id,
+                                   '',
+                                   'Documents/casarte_presentation.pdf', False, False)
+        send_document_with_message(bot, message.chat.id,
+                                   '',
+                                   'Documents/casarte_reminder.pdf', True, False)
 
     elif message.text == 'Аттестация сотрудников':
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
@@ -917,9 +926,9 @@ def get_user_text(message):
         bot.send_message(message.chat.id, 'Для возврата нажмите /home', parse_mode='html', reply_markup=markup)
 
     elif message.text == 'Инструкция по аттестации':
-        doc = open('Documents/attestation_instruction.pdf', 'rb')
-        bot.send_document(message.chat.id, doc)
-        bot.send_message(message.chat.id, 'Для возврата нажмите /home')
+        send_document_with_message(bot, message.chat.id,
+                                   'Ознакомьтесь с инструкцией по аттестации:',
+                                   'Documents/attestation_instruction.pdf')
 
     elif message.text == 'Тест для ОСиД, АФС, Регионы':
         markup = types.InlineKeyboardMarkup()
@@ -992,9 +1001,9 @@ def get_user_text(message):
         bot.send_message(message.chat.id, 'Для возврата нажмите /home', parse_mode='html', reply_markup=markup)
 
     elif message.text == 'Памятка по заполнению ВСД клиентов JTI, Нестле':
-        doc = open('Documents/VSD_reminder.pdf', 'rb')
-        bot.send_document(message.chat.id, doc)
-        bot.send_message(message.chat.id, 'Для возврата нажмите /home')
+        send_document_with_message(bot, message.chat.id,
+                                   'Ознакомьтесь с памяткой по заполнению ВСД клиентов JTI, Нестле:',
+                                   'Documents/VSD_reminder.pdf')
 
     elif message.text == 'Видео по заполнению ВСД клиентов JTI, Нестле':
         # video = open('', 'rb')
@@ -1011,9 +1020,9 @@ def get_user_text(message):
         bot.send_message(message.chat.id, 'Для возврата нажмите /home', parse_mode='html', reply_markup=markup)
 
     elif message.text == 'Презентация МФК ДЖАМИЛЬКО МОН':
-        doc = open('Documents/jamilco_presentation.pdf', 'rb')
-        bot.send_document(message.chat.id, doc)
-        bot.send_message(message.chat.id, 'Для возврата нажмите /home')
+        send_document_with_message(bot, message.chat.id,
+                                   'Ознакомьтесь с презентацией МФК ДЖАМИЛЬКО МОН:',
+                                   'Documents/jamilco_presentation.pdf')
 
     elif message.text == 'Ростелеком':
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
@@ -1023,11 +1032,12 @@ def get_user_text(message):
         bot.send_message(message.chat.id, 'Для возврата нажмите /home', parse_mode='html', reply_markup=markup)
 
     elif message.text == 'Ростелеком Москва и МО':
-        doc = open('Documents/rostelecom_instruction.pdf', 'rb')
-        bot.send_document(message.chat.id, doc)
-        doc = open('Documents/rostelecom_msk.pdf', 'rb')
-        bot.send_document(message.chat.id, doc)
-        bot.send_message(message.chat.id, 'Для возврата нажмите /home')
+        send_document_with_message(bot, message.chat.id,
+                                   '',
+                                   'Documents/rostelecom_instruction.pdf', False, False)
+        send_document_with_message(bot, message.chat.id,
+                                   '',
+                                   'Documents/rostelecom_msk.pdf', True, False)
 
     elif message.text == 'Ростелеком Регионы':
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
@@ -1037,8 +1047,9 @@ def get_user_text(message):
         bot.send_message(message.chat.id, 'Для возврата нажмите /home', parse_mode='html', reply_markup=markup)
 
     elif message.text == 'Ростелеком Регионы теория':
-        doc = open('Documents/rostelecom_region.pdf', 'rb')
-        bot.send_document(message.chat.id, doc)
+        send_document_with_message(bot, message.chat.id,
+                                   '',
+                                   'Documents/rostelecom_region.pdf', False, False)
         img = open('Documents/rostelecom_poster.jpg', 'rb')
         bot.send_photo(message.chat.id, img)
         bot.send_message(message.chat.id, 'Для возврата нажмите /home')
@@ -1058,9 +1069,9 @@ def get_user_text(message):
         bot.send_message(message.chat.id, 'Для возврата нажмите /home', parse_mode='html', reply_markup=markup)
 
     elif message.text == 'Температурные грузы Памятка для курьеров':
-        doc = open('Documents/temper_courier_reminder.pdf', 'rb')
-        bot.send_document(message.chat.id, doc)
-        bot.send_message(message.chat.id, 'Для возврата нажмите /home')
+        send_document_with_message(bot, message.chat.id,
+                                   'Ознакомьтесь с памяткой по работе с температурными грузами:',
+                                   'Documents/temper_courier_reminder.pdf')
 
     elif message.text == 'Тест Температурные грузы для курьеров':
         markup = types.InlineKeyboardMarkup()
@@ -1077,14 +1088,14 @@ def get_user_text(message):
         bot.send_message(message.chat.id, 'Для возврата нажмите /home', parse_mode='html', reply_markup=markup)
 
     elif message.text == 'Температурные грузы Памятка для диспетчеров':
-        doc = open('Documents/temper_dispatcher_reminder.pdf', 'rb')
-        bot.send_document(message.chat.id, doc)
-        bot.send_message(message.chat.id, 'Для возврата нажмите /home')
+        send_document_with_message(bot, message.chat.id,
+                                   'Ознакомьтесь с памяткой по работе с температурными грузами:',
+                                   'Documents/temper_dispatcher_reminder.pdf')
 
     elif message.text == 'Температурные грузы презентация':
-        doc = open('Documents/temper_presentation.pdf', 'rb')
-        bot.send_document(message.chat.id, doc)
-        bot.send_message(message.chat.id, 'Для возврата нажмите /home')
+        send_document_with_message(bot, message.chat.id,
+                                   'Ознакомьтесь с презентацией по работе с температурными грузами:',
+                                   'Documents/temper_presentation.pdf')
 
     elif message.text == 'Тест Температурные грузы для диспетчеров':
         markup = types.InlineKeyboardMarkup()
@@ -1141,11 +1152,12 @@ def get_user_text(message):
         bot.send_message(message.chat.id, 'Для возврата нажмите /home')
 
     elif message.text == '3-й квартал 2023':
-        doc1 = open('Documents/best_emp_deliv_msk_III ch.pdf', 'rb')
-        bot.send_document(message.chat.id, doc1)
-        doc2 = open('Documents/best_emp_region_III ch.pdf', 'rb')
-        bot.send_document(message.chat.id, doc2)
-        bot.send_message(message.chat.id, 'Для возврата нажмите /home')
+        send_document_with_message(bot, message.chat.id,
+                                   'Лучшие Москва:',
+                                   'Documents/best_emp_deliv_msk_III ch.pdf', False)
+        send_document_with_message(bot, message.chat.id,
+                                   'Лучшие Регионы:',
+                                   'Documents/best_emp_region_III ch.pdf')
 
     else:
         bot.send_message(message.chat.id,'Для возврата в начало нажмите /home\n'
