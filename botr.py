@@ -270,7 +270,17 @@ def send_document_with_message(bot, chat_id, message_text, document_path, final_
     if final_text:
         bot.send_message(chat_id, 'Для возврата нажмите /home', parse_mode='html')
 
+def send_video_link(bot, chat_id, title, video_url, back_button=False, final_text=True):
+    markup = types.InlineKeyboardMarkup()
+    markup.add(types.InlineKeyboardButton('Смотреть видео', url=video_url))
 
+    bot.send_message(chat_id, f'<b>{title}</b>\nДля просмотра видео перейдите по ссылке:', reply_markup=markup, parse_mode='html')
+
+    if final_text:
+        bot.send_message(chat_id, 'Для возврата нажмите /home', parse_mode='html')
+
+    if back_button:
+        bot.send_message(chat_id, 'Для возврата нажмите /back')
 
 @bot.message_handler(content_types=['text'])
 @analytics
@@ -335,12 +345,8 @@ def get_user_text(message):
                                    'Documents/start_day.pdf')
 
     elif message.text == 'Начало рабочего дня (видео)':
-        markup = types.InlineKeyboardMarkup()
-        markup.add(types.InlineKeyboardButton('Смотреть видео',
-                                              url='https://drive.google.com/file/d/10hm8iQ8OyytR-phHhQmwh25Lr2BUtDpR/view?usp=drive_link'))
-        bot.send_message(message.chat.id, '<b>Начало рабочего дня</b>\nДля просмотра видео перейдите по ссылке:',
-                         reply_markup=markup)
-        bot.send_message(message.chat.id, 'Для возврата нажмите /back')
+        send_video_link(bot, message.chat.id, 'Начало рабочего дня',
+                        'https://drive.google.com/file/d/10hm8iQ8OyytR-phHhQmwh25Lr2BUtDpR/view?usp=drive_link', True, False)
 
     elif message.text == 'Расходные материалы':
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
@@ -361,11 +367,9 @@ def get_user_text(message):
                                    'Documents/expend_materials.pdf')
 
     elif message.text == 'Расходные материалы (видео)':
-        markup = types.InlineKeyboardMarkup()
-        markup.add(types.InlineKeyboardButton('Смотреть видео',
-                                              url='https://drive.google.com/file/d/1c55YdtzeFyOfyQIQRVcqdFOTZYgnh7c6/view?usp=drive_link'))
-        bot.send_message(message.chat.id, '<b>Расходные материалы</b>\nДля просмотра видео перейдите по ссылке:', reply_markup=markup)
-        bot.send_message(message.chat.id, 'Для возврата нажмите /back')
+        send_video_link(bot, message.chat.id, 'Расходные материалы',
+                        'https://drive.google.com/file/d/1c55YdtzeFyOfyQIQRVcqdFOTZYgnh7c6/view?usp=drive_link', True,
+                        False)
 
     elif message.text == 'Накладная':
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
@@ -386,12 +390,9 @@ def get_user_text(message):
                                    'Documents/invoice.pdf')
 
     elif message.text == 'Накладная (видео)':
-        markup = types.InlineKeyboardMarkup()
-        markup.add(types.InlineKeyboardButton('Смотреть видео',
-                                              url='https://drive.google.com/file/d/1ddLAjq9t8mki7M-Dr33pv_Z4SkJ1H_Cq/view?usp=drive_link'))
-        bot.send_message(message.chat.id, '<b>Накладная</b>\nДля просмотра видео перейдите по ссылке:',
-                         reply_markup=markup)
-        bot.send_message(message.chat.id, 'Для возврата нажмите /back')
+        send_video_link(bot, message.chat.id, 'Накладная',
+                        'https://drive.google.com/file/d/1ddLAjq9t8mki7M-Dr33pv_Z4SkJ1H_Cq/view?usp=drive_link', True,
+                        False)
 
     elif message.text == 'Доставка лично в руки':
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
@@ -412,12 +413,9 @@ def get_user_text(message):
                                    'Documents/deliv_person.pdf')
 
     elif message.text == 'Доставка лично в руки (видео)':
-        markup = types.InlineKeyboardMarkup()
-        markup.add(types.InlineKeyboardButton('Смотреть видео',
-                                              url='https://drive.google.com/file/d/1dT0o7FTahiWOPKY3UmyBmHy4g-5xS7cE/view?usp=drive_link'))
-        bot.send_message(message.chat.id, '<b>Доставка лично в руки</b>\nДля просмотра видео перейдите по ссылке:',
-                         reply_markup=markup)
-        bot.send_message(message.chat.id, 'Для возврата нажмите /back')
+        send_video_link(bot, message.chat.id, 'Доставка лично в руки',
+                        'https://drive.google.com/file/d/1dT0o7FTahiWOPKY3UmyBmHy4g-5xS7cE/view?usp=drive_link', True,
+                        False)
 
     elif message.text == 'Доставка с возвратом':
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
@@ -438,12 +436,9 @@ def get_user_text(message):
                                    'Documents/return_shipping.pdf')
 
     elif message.text == 'Доставка с возвратом (видео)':
-        markup = types.InlineKeyboardMarkup()
-        markup.add(types.InlineKeyboardButton('Смотреть видео',
-                                              url='https://drive.google.com/file/d/1VA0TZDJV9cfCTiR93vHnOQ9U2mix0QR-/view?usp=drive_link'))
-        bot.send_message(message.chat.id, '<b>Доставка с возвратом</b>\nДля просмотра видео перейдите по ссылке:',
-                         reply_markup=markup)
-        bot.send_message(message.chat.id, 'Для возврата нажмите /back')
+        send_video_link(bot, message.chat.id, 'Доставка с возвратом',
+                        'https://drive.google.com/file/d/1VA0TZDJV9cfCTiR93vHnOQ9U2mix0QR-/view?usp=drive_link', True,
+                        False)
 
     elif message.text == 'Забор за наличные деньги':
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
@@ -464,12 +459,9 @@ def get_user_text(message):
                                    'Documents/reception_cash.pdf')
 
     elif message.text == 'Забор за наличные деньги (видео)':
-        markup = types.InlineKeyboardMarkup()
-        markup.add(types.InlineKeyboardButton('Смотреть видео',
-                                              url='https://drive.google.com/file/d/1595XApsVCMP6i1VHLLgwERVzSHapgyzN/view?usp=drive_link'))
-        bot.send_message(message.chat.id, '<b>Забор за наличные деньги</b>\nДля просмотра видео перейдите по ссылке:',
-                         reply_markup=markup)
-        bot.send_message(message.chat.id, 'Для возврата нажмите /back')
+        send_video_link(bot, message.chat.id, 'Забор за наличные деньги',
+                        'https://drive.google.com/file/d/1595XApsVCMP6i1VHLLgwERVzSHapgyzN/view?usp=drive_link', True,
+                        False)
 
     elif message.text == 'Международное отправление':
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
@@ -490,12 +482,9 @@ def get_user_text(message):
                                    'Documents/international_shipping.pdf')
 
     elif message.text == 'Международное отправление (видео)':
-        markup = types.InlineKeyboardMarkup()
-        markup.add(types.InlineKeyboardButton('Смотреть видео',
-                                              url='https://drive.google.com/file/d/1zsgs04VACCAGVrQcRK1j6BlNopSBdwOb/view?usp=drive_link'))
-        bot.send_message(message.chat.id, '<b>Международное отправление</b>\nДля просмотра видео перейдите по ссылке:',
-                         reply_markup=markup)
-        bot.send_message(message.chat.id, 'Для возврата нажмите /back')
+        send_video_link(bot, message.chat.id, 'Международное отправление',
+                        'https://drive.google.com/file/d/1zsgs04VACCAGVrQcRK1j6BlNopSBdwOb/view?usp=drive_link', True,
+                        False)
 
     elif message.text == 'Завершение рабочего дня':
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
@@ -516,12 +505,9 @@ def get_user_text(message):
                                    'Documents/end_day.pdf')
 
     elif message.text == 'Завершение рабочего дня (видео)':
-        markup = types.InlineKeyboardMarkup()
-        markup.add(types.InlineKeyboardButton('Смотреть видео',
-                                              url='https://drive.google.com/file/d/1dA_x8cU2_WElcrfJehb5uRgGJnsHo921/view?usp=drive_link'))
-        bot.send_message(message.chat.id, '<b>Завершение рабочего дня</b>\nДля просмотра видео перейдите по ссылке:',
-                         reply_markup=markup)
-        bot.send_message(message.chat.id, 'Для возврата нажмите /back')
+        send_video_link(bot, message.chat.id, 'Завершение рабочего дня',
+                        'https://drive.google.com/file/d/1dA_x8cU2_WElcrfJehb5uRgGJnsHo921/view?usp=drive_link', True,
+                        False)
 
     elif message.text == 'Тест по базовому обучению':
         markup = types.InlineKeyboardMarkup()
@@ -543,10 +529,8 @@ def get_user_text(message):
                                           'Для возврата нажмите /home', parse_mode='html', reply_markup=markup)
 
     elif message.text == 'Видео урок Карго':
-        markup = types.InlineKeyboardMarkup()
-        markup.add(types.InlineKeyboardButton('Смотреть видео', url='https://drive.google.com/file/d/1Bf6vn0BgSEtYXoV-TKXQkeWAHiWWE23Y/view?usp=drive_link'))
-        bot.send_message(message.chat.id, 'Для просмотра видео перейдите по ссылке:', reply_markup=markup)
-        bot.send_message(message.chat.id, 'Для возврата нажмите /home')
+        send_video_link(bot, message.chat.id, 'Карго. Основные операции',
+                        'https://drive.google.com/file/d/1Bf6vn0BgSEtYXoV-TKXQkeWAHiWWE23Y/view?usp=drive_link')
 
     elif message.text == 'Памятка Карго':
         send_document_with_message(bot, message.chat.id,
@@ -581,11 +565,8 @@ def get_user_text(message):
                                           'Для возврата нажмите /home', parse_mode='html', reply_markup=markup)
 
     elif message.text == 'Видео урок ПВЗ':
-        markup = types.InlineKeyboardMarkup()
-        markup.add(types.InlineKeyboardButton('Смотреть видео',
-                                              url='https://drive.google.com/file/d/1DpceGHOzdDcMh9f3-oUK5LW6GSzBx08z/view?usp=drive_link'))
-        bot.send_message(message.chat.id, '<b>Видео урок ПВЗ</b>\nДля просмотра видео перейдите по ссылке:', reply_markup=markup)
-        bot.send_message(message.chat.id, 'Для возврата нажмите /home')
+        send_video_link(bot, message.chat.id, 'Видео урок ПВЗ',
+                        'https://drive.google.com/file/d/1DpceGHOzdDcMh9f3-oUK5LW6GSzBx08z/view?usp=drive_link')
 
     elif message.text == 'Инструкция почтоматы Халва':
         send_document_with_message(bot, message.chat.id,
@@ -627,12 +608,8 @@ def get_user_text(message):
                                    'Documents/fast_pay_script.pdf')
 
     elif message.text == 'Видео урок СБП':
-        markup = types.InlineKeyboardMarkup()
-        markup.add(types.InlineKeyboardButton('Смотреть видео',
-                                              url='https://drive.google.com/file/d/10LCh0FJMRv8Axt4Lyc3UzIXxpDllxPQA/view?usp=drive_link'))
-        bot.send_message(message.chat.id, '<b>Видео урок СБП</b>\nДля просмотра видео перейдите по ссылке:',
-                         reply_markup=markup)
-        bot.send_message(message.chat.id, 'Для возврата нажмите /home')
+        send_video_link(bot, message.chat.id, 'Видео урок СБП',
+                        'https://drive.google.com/file/d/10LCh0FJMRv8Axt4Lyc3UzIXxpDllxPQA/view?usp=drive_link')
 
     elif message.text == 'Для наставника':
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
@@ -644,12 +621,8 @@ def get_user_text(message):
         bot.send_message(message.chat.id, 'Для возврата нажмите /home', parse_mode='html', reply_markup=markup)
 
     elif message.text == 'Видео урок для наставников':
-        markup = types.InlineKeyboardMarkup()
-        markup.add(types.InlineKeyboardButton('Смотреть видео',
-                                              url='https://drive.google.com/file/d/1MSDuS72YwKESSEI9FR08-HAGR5qCbMh-/view?usp=drive_link'))
-        bot.send_message(message.chat.id, '<b>Видео урок для наставников</b>\nДля просмотра видео перейдите по ссылке:',
-                         reply_markup=markup)
-        bot.send_message(message.chat.id, 'Для возврата нажмите /home')
+        send_video_link(bot, message.chat.id, 'Видео урок для наставников',
+                        'https://drive.google.com/file/d/1MSDuS72YwKESSEI9FR08-HAGR5qCbMh-/view?usp=drive_link')
 
     elif message.text == 'Презентация для наставников':
         send_document_with_message(bot, message.chat.id,
@@ -697,31 +670,19 @@ def get_user_text(message):
                                    'Documents/traces_scheme.pdf')
 
     elif message.text == 'НСТ курьеры':
-        markup = types.InlineKeyboardMarkup()
-        markup.add(types.InlineKeyboardButton('Смотреть видео',
-                                              url='https://drive.google.com/file/d/1qZLvNtgqUH1f8zUZEXb0hAexkvdPxYKP/view?usp=drive_link'))
-        bot.send_message(message.chat.id, '<b>НСТ для курьеров доставка</b>\nДля просмотра видео перейдите по ссылке:', reply_markup=markup)
-        markup = types.InlineKeyboardMarkup()
-        markup.add(types.InlineKeyboardButton('Смотреть видео',
-                                              url='https://drive.google.com/file/d/1XhhmxLEwcDbjwSLs-93G5buUKOEkSs1v/view?usp=drive_link'))
-        bot.send_message(message.chat.id, '<b>НСТ для курьеров забор</b>\nДля просмотра видео перейдите по ссылке:', reply_markup=markup)
-        bot.send_message(message.chat.id, 'Для возврата нажмите /home')
+        send_video_link(bot, message.chat.id, 'НСТ для курьеров доставка',
+                        'https://drive.google.com/file/d/1qZLvNtgqUH1f8zUZEXb0hAexkvdPxYKP/view?usp=drive_link', final_text=False)
+        send_video_link(bot, message.chat.id, 'НСТ для курьеров забор',
+                        'https://drive.google.com/file/d/1XhhmxLEwcDbjwSLs-93G5buUKOEkSs1v/view?usp=drive_link')
 
     elif message.text == 'НСТ диспетчеры':
         send_document_with_message(bot, message.chat.id,
                                    'Ознакомьтесь с новой системой трейсов для диспетчеров:',
-                                   'Documents/disp_traces_presentation.pdf')
-        markup = types.InlineKeyboardMarkup()
-        markup.add(types.InlineKeyboardButton('Смотреть видео',
-                                              url='https://drive.google.com/file/d/1Vfml-Iq-vE77Eru7ELcV8nGTI_twHWLf/view?usp=drive_link'))
-        bot.send_message(message.chat.id, '<b>НСТ для диспетчеров доставка</b>\nДля просмотра видео перейдите по ссылке:', reply_markup=markup)
-        markup = types.InlineKeyboardMarkup()
-        markup.add(types.InlineKeyboardButton('Смотреть видео',
-                                              url='https://drive.google.com/file/d/1bEnEYRC_ADji69e6pSq-oUA_i7LPlWef/view?usp=drive_link'))
-        bot.send_message(message.chat.id,
-                         '<b>НСТ для диспетчеров забор</b>\nДля просмотра видео перейдите по ссылке:',
-                         reply_markup=markup)
-        bot.send_message(message.chat.id, 'Для возврата нажмите /home')
+                                   'Documents/disp_traces_presentation.pdf', False)
+        send_video_link(bot, message.chat.id, 'НСТ для диспетчеров доставка',
+                        'https://drive.google.com/file/d/1Vfml-Iq-vE77Eru7ELcV8nGTI_twHWLf/view?usp=drive_link', final_text=False)
+        send_video_link(bot, message.chat.id, 'НСТ для диспетчеров забор',
+                        'https://drive.google.com/file/d/1bEnEYRC_ADji69e6pSq-oUA_i7LPlWef/view?usp=drive_link')
 
     elif message.text == 'Работа с трейсами ПВЗ':
         send_document_with_message(bot, message.chat.id,
@@ -742,19 +703,13 @@ def get_user_text(message):
         send_document_with_message(bot, message.chat.id,
                                    'Ознакомьтесь с новой системой трейсов для склада:',
                                    'Documents/traces_storehouse.pdf', False)
-        markup = types.InlineKeyboardMarkup()
-        markup.add(types.InlineKeyboardButton('Смотреть видео',
-                                              url='https://drive.google.com/file/d/16qLMw3R54YOCVIvMTavlRdwvurQm5hz3/view?usp=drive_link'))
-        bot.send_message(message.chat.id, '<b>НСТ склад</b>\nДля просмотра видео перейдите по ссылке:', reply_markup=markup)
-        markup = types.InlineKeyboardMarkup()
-        markup.add(types.InlineKeyboardButton('Смотреть видео',
-                                              url='https://drive.google.com/file/d/1-61HToxFxRZmtoXdUJd13WWhLHaViZ_x/view?usp=drive_link'))
-        bot.send_message(message.chat.id, '<b>НСТ склад</b>\nДля просмотра видео перейдите по ссылке:', reply_markup=markup)
-        markup = types.InlineKeyboardMarkup()
-        markup.add(types.InlineKeyboardButton('Смотреть видео',
-                                              url='https://drive.google.com/file/d/1Tx3_Oqdtqlewk9dOz8YbXh7DGZyhd30S/view?usp=drive_link'))
-        bot.send_message(message.chat.id, '<b>НСТ склад</b>\nДля просмотра видео перейдите по ссылке:', reply_markup=markup)
-        bot.send_message(message.chat.id, 'Для возврата нажмите /home')
+        send_video_link(bot, message.chat.id, 'НСТ склад',
+                        'https://drive.google.com/file/d/16qLMw3R54YOCVIvMTavlRdwvurQm5hz3/view?usp=drive_link', final_text=False)
+        send_video_link(bot, message.chat.id, 'НСТ склад',
+                        'https://drive.google.com/file/d/1-61HToxFxRZmtoXdUJd13WWhLHaViZ_x/view?usp=drive_link',
+                        final_text=False)
+        send_video_link(bot, message.chat.id, 'НСТ склад',
+                        'https://drive.google.com/file/d/1Tx3_Oqdtqlewk9dOz8YbXh7DGZyhd30S/view?usp=drive_link')
 
     elif message.text == 'Вымпелком':
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
@@ -787,24 +742,17 @@ def get_user_text(message):
                                    'Documents/damage ABO.pdf')
 
     elif message.text == 'Видео инструкции Вымпелком':
-        markup = types.InlineKeyboardMarkup()
-        markup.add(types.InlineKeyboardButton('Смотреть видео', url='https://drive.google.com/file/d/1ztSN0jADCDaoinVBHURomJIZU8GvAo-X/view?usp=drive_link'))
-        bot.send_message(message.chat.id, '<b>Возврат АБО для смартфона</b>\nДля просмотра видео перейдите по ссылке:', reply_markup=markup)
-        markup = types.InlineKeyboardMarkup()
-        markup.add(types.InlineKeyboardButton('Смотреть видео', url='https://drive.google.com/file/d/1W6eXG-zhPcgUXO_y3MZAV7R30I9wLDig/view?usp=drive_link'))
-        bot.send_message(message.chat.id, '<b>Доставка АБО</b>\nДля просмотра видео перейдите по ссылке:',
-                         reply_markup=markup)
-        markup = types.InlineKeyboardMarkup()
-        markup.add(types.InlineKeyboardButton('Смотреть видео',
-                                              url='https://drive.google.com/file/d/1FENhWA1edTOhGiUEOzD7mpXoMQ3lAQzf/view?usp=drive_link'))
-        bot.send_message(message.chat.id, '<b>Доставка СИМ</b>\nДля просмотра видео перейдите по ссылке:',
-                         reply_markup=markup)
-        markup = types.InlineKeyboardMarkup()
-        markup.add(types.InlineKeyboardButton('Смотреть видео',
-                                              url='https://drive.google.com/file/d/1JLHyIaXicRpyolqdIRtQHsnulcjorUn_/view?usp=drive_link'))
-        bot.send_message(message.chat.id, '<b>Замена АБО</b>\nДля просмотра видео перейдите по ссылке:',
-                         reply_markup=markup)
-        bot.send_message(message.chat.id, 'Для возврата нажмите /home')
+        send_video_link(bot, message.chat.id, 'Возврат АБО для смартфона',
+                        'https://drive.google.com/file/d/1ztSN0jADCDaoinVBHURomJIZU8GvAo-X/view?usp=drive_link', final_text=False)
+        send_video_link(bot, message.chat.id, 'Доставка АБО',
+                        'https://drive.google.com/file/d/1W6eXG-zhPcgUXO_y3MZAV7R30I9wLDig/view?usp=drive_link',
+                        final_text=False)
+        send_video_link(bot, message.chat.id, 'Доставка СИМ',
+                        'https://drive.google.com/file/d/1FENhWA1edTOhGiUEOzD7mpXoMQ3lAQzf/view?usp=drive_link',
+                        final_text=False)
+        send_video_link(bot, message.chat.id, 'Замена АБО',
+                        'https://drive.google.com/file/d/1JLHyIaXicRpyolqdIRtQHsnulcjorUn_/view?usp=drive_link')
+
 
     elif message.text == 'Презентация Вымпелком':
         send_document_with_message(bot, message.chat.id,
@@ -869,10 +817,8 @@ def get_user_text(message):
                                    'Documents/presentation_trade-in.pdf')
 
     elif message.text == 'Видео процесса проверки Б/У устройства':
-        markup = types.InlineKeyboardMarkup()
-        markup.add(types.InlineKeyboardButton('Смотреть видео', url='https://drive.google.com/file/d/1QMmoHXaZ1S_t8x_9JhWUDttDjiDNDaeY/view?usp=drive_link'))
-        bot.send_message(message.chat.id, '<b>Проверка Б/У устройства</b>\nДля просмотра видео перейдите по ссылке:', reply_markup=markup)
-        bot.send_message(message.chat.id, 'Для возврата нажмите /home')
+        send_video_link(bot, message.chat.id, 'Проверка Б/У устройства',
+                        'https://drive.google.com/file/d/1QMmoHXaZ1S_t8x_9JhWUDttDjiDNDaeY/view?usp=drive_link')
 
     elif message.text == 'Тест по ТРЕЙД-ИН':
         markup = types.InlineKeyboardMarkup()
@@ -903,12 +849,9 @@ def get_user_text(message):
         send_document_with_message(bot, message.chat.id,
                                    'Ознакомьтесь с порядком действий при самоинкассации в регионах:',
                                    'Documents/self_collection_region_sber.pdf', False)
-        markup = types.InlineKeyboardMarkup()
-        markup.add(types.InlineKeyboardButton('Смотреть видео',
-                                              url='https://drive.google.com/file/d/1eUNFf6wzOsibqOHQFhpYj5OspkcgXPVy/view?usp=drive_link'))
-        bot.send_message(message.chat.id, '<b>Самоинкассация Регионы</b>\nДля просмотра видео перейдите по ссылке:',
-                         reply_markup=markup)
-        bot.send_message(message.chat.id, 'Для возврата нажмите /home')
+        send_video_link(bot, message.chat.id, 'Самоинкассация Регионы',
+                        'https://drive.google.com/file/d/1eUNFf6wzOsibqOHQFhpYj5OspkcgXPVy/view?usp=drive_link')
+
 
     elif message.text == 'Casarte':
         send_document_with_message(bot, message.chat.id,
@@ -1104,32 +1047,19 @@ def get_user_text(message):
         bot.send_message(message.chat.id, 'Для возврата в меню нажмите /home')
 
     elif message.text == 'Продвинутое обучение':
-        markup = types.InlineKeyboardMarkup()
-        markup.add(types.InlineKeyboardButton('Смотреть видео',
-                                              url='https://drive.google.com/file/d/1CMYy-gHa166F-n_ND7pZpmVgRvngrHEm/view?usp=drive_link'))
-        bot.send_message(message.chat.id, '<b>Вымпелком ЭДО</b>\nДля просмотра видео перейдите по ссылке:',
-                         reply_markup=markup)
-        markup = types.InlineKeyboardMarkup()
-        markup.add(types.InlineKeyboardButton('Смотреть видео',
-                                              url='https://drive.google.com/file/d/1PQMLTb5qL59gj5QDT6G0j0OVBCFug-xi/view?usp=drive_link'))
-        bot.send_message(message.chat.id, '<b>Вымпелком</b>\nДля просмотра видео перейдите по ссылке:',
-                         reply_markup=markup)
-        markup = types.InlineKeyboardMarkup()
-        markup.add(types.InlineKeyboardButton('Смотреть видео',
-                                              url='https://drive.google.com/file/d/1lG3ykpqKgnjaM53ShjYHT20fQacuQm7N/view?usp=drive_link'))
-        bot.send_message(message.chat.id, '<b>Джамилько</b>\nДля просмотра видео перейдите по ссылке:',
-                         reply_markup=markup)
-        markup = types.InlineKeyboardMarkup()
-        markup.add(types.InlineKeyboardButton('Смотреть видео',
-                                              url='https://drive.google.com/file/d/1XFQpo6V32_dRcoOG5MSamr-JbFmn5JDq/view?usp=drive_link'))
-        bot.send_message(message.chat.id, '<b>ТрейдИн</b>\nДля просмотра видео перейдите по ссылке:',
-                         reply_markup=markup)
-        markup = types.InlineKeyboardMarkup()
-        markup.add(types.InlineKeyboardButton('Смотреть видео',
-                                              url='https://drive.google.com/file/d/1GEdgGAA9cK9FKqJzeGCta0CvmIPirtvT/view?usp=drive_link'))
-        bot.send_message(message.chat.id, '<b>Температурные грузы</b>\nДля просмотра видео перейдите по ссылке:',
-                         reply_markup=markup)
-        bot.send_message(message.chat.id, 'Для возврата в меню нажмите /home')
+        send_video_link(bot, message.chat.id, 'Вымпелком ЭДО',
+                        'https://drive.google.com/file/d/1CMYy-gHa166F-n_ND7pZpmVgRvngrHEm/view?usp=drive_link', final_text=False)
+        send_video_link(bot, message.chat.id, 'Вымпелком',
+                        'https://drive.google.com/file/d/1PQMLTb5qL59gj5QDT6G0j0OVBCFug-xi/view?usp=drive_link',
+                        final_text=False)
+        send_video_link(bot, message.chat.id, 'Джамилько',
+                        'https://drive.google.com/file/d/1lG3ykpqKgnjaM53ShjYHT20fQacuQm7N/view?usp=drive_link',
+                        final_text=False)
+        send_video_link(bot, message.chat.id, 'ТрейдИн',
+                        'https://drive.google.com/file/d/1XFQpo6V32_dRcoOG5MSamr-JbFmn5JDq/view?usp=drive_link',
+                        final_text=False)
+        send_video_link(bot, message.chat.id, 'Температурные грузы',
+                        'https://drive.google.com/file/d/1GEdgGAA9cK9FKqJzeGCta0CvmIPirtvT/view?usp=drive_link')
 
     elif message.text == 'Программа "Лучший сотрудник"':
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
@@ -1140,16 +1070,12 @@ def get_user_text(message):
         bot.send_message(message.chat.id, 'Для возврата нажмите /home', parse_mode='html', reply_markup=markup)
 
     elif message.text == '1-й квартал 2023':
-        markup = types.InlineKeyboardMarkup()
-        markup.add(types.InlineKeyboardButton('Смотреть видео', url='https://disk.yandex.ru/i/U0PNeSGWqubTpA'))
-        bot.send_message(message.chat.id, '<b>Лучший из лучших за 1-й квартал 2023 года</b>\nДля просмотра видео перейдите по ссылке:', reply_markup=markup)
-        bot.send_message(message.chat.id, 'Для возврата нажмите /home')
+        send_video_link(bot, message.chat.id, 'Лучший из лучших за 1-й квартал 2023 года',
+                        'https://disk.yandex.ru/i/U0PNeSGWqubTpA')
 
     elif message.text == '2-й квартал 2023':
-        markup = types.InlineKeyboardMarkup()
-        markup.add(types.InlineKeyboardButton('Смотреть видео', url='https://disk.yandex.ru/i/XE3bkwNu4AhmEQ'))
-        bot.send_message(message.chat.id, '<b>Лучший из лучших за 2-й квартал 2023 года</b>\nДля просмотра видео перейдите по ссылке:', reply_markup=markup)
-        bot.send_message(message.chat.id, 'Для возврата нажмите /home')
+        send_video_link(bot, message.chat.id, 'Лучший из лучших за 2-й квартал 2023 года',
+                        'https://disk.yandex.ru/i/XE3bkwNu4AhmEQ')
 
     elif message.text == '3-й квартал 2023':
         send_document_with_message(bot, message.chat.id,
