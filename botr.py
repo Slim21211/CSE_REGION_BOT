@@ -210,6 +210,7 @@ def start(message):
     rostelecom = types.KeyboardButton("Ростелеком")
     temperature = types.KeyboardButton("Температурные грузы")
     high_education = types.KeyboardButton("Продвинутое обучение")
+    damage_fix = types.KeyboardButton("Фиксация повреждений грузов")
     item = types.KeyboardButton("Функции для администраторов")
     markup.row(interns, study)
     markup.row(cargo, post_office)
@@ -220,7 +221,7 @@ def start(message):
     markup.row(quiz, casarte)
     markup.row(jamilco, rostelecom)
     markup.row(temperature, best)
-    markup.row(high_education)
+    markup.row(high_education, damage_fix)
     if message.from_user.id in admin_ids:
         markup.add(item)
     bot.send_message(message.chat.id,'Выберите раздел:', parse_mode='html', reply_markup=markup)
@@ -790,10 +791,10 @@ def get_user_text(message):
 
     elif message.text == 'НэтБайНэт':
         send_document_with_message(bot, message.chat.id,
-                                   'Ознакомьтесь с презентацией ЭДО - Вымпелком',
+                                   '',
                                    'Documents/netbynet.pdf', False, False)
         send_document_with_message(bot, message.chat.id,
-                                   'Ознакомьтесь с презентацией ЭДО - Вымпелком',
+                                   '',
                                    'Documents/netbynet_instruction.pdf', True, False)
 
     elif message.text == 'ТРЕЙД-ИН':
@@ -1045,6 +1046,14 @@ def get_user_text(message):
         markup.add(types.InlineKeyboardButton('Тест Температурные грузы для диспетчеров', url='https://short.startexam.com/X5bWMGgg'))
         bot.send_message(message.chat.id, 'Перейдите по ссылке, чтобы пройти тестирование:', parse_mode='html', reply_markup=markup)
         bot.send_message(message.chat.id, 'Для возврата в меню нажмите /home')
+
+    elif message.text == 'Фиксация повреждений грузов':
+        send_document_with_message(bot, message.chat.id, 'Правила приема отчетов:',
+                                   'Documents/damage_reports.pdf', False)
+        send_document_with_message(bot, message.chat.id, 'Правила составления Акта осмотра груза при доставке:',
+                                   'Documents/damage_act.pdf', False)
+        send_document_with_message(bot, message.chat.id, 'Регламент по составлению и хранению Актов о повреждении груза в ДД:',
+                                   'Documents/damage_regulations.pdf')
 
     elif message.text == 'Продвинутое обучение':
         send_video_link(bot, message.chat.id, 'Вымпелком ЭДО',
