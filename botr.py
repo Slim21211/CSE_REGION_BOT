@@ -1083,7 +1083,7 @@ def get_user_text(message):
                                    'Documents/cargo_spaces_presentation.pdf', False)
         send_document_with_message(bot, message.chat.id,
                                    'Инструкция по привязке грузовых мест:',
-                                   'Documents/cargo_spaces_presentation.pdf')
+                                   'Documents/cargo_spaces_instruction.pdf')
 
     elif message.text == 'Программа "Лучший сотрудник"':
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
