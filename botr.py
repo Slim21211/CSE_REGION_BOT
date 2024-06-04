@@ -1081,6 +1081,10 @@ def get_user_text(message):
     elif message.text == 'Привязка грузовых мест в МПК при сборе заказа. Сдача груза на склад в ячейку':
         send_document_with_message(bot, message.chat.id, 'Презентация привязка грузовых мест:',
                                    'Documents/cargo_spaces_presentation.pdf', False)
+        send_document_with_message(bot, message.chat.id, 'Памятка по привязке ГМХ в МПК:',
+                                   'Documents/cargo_spaces_reminder_binding.pdf', False)
+        send_document_with_message(bot, message.chat.id, 'Памятка по сдаче груза на склад:',
+                                   'Documents/cargo_spaces_reminder.pdf', False)
         send_document_with_message(bot, message.chat.id,
                                    'Инструкция по привязке грузовых мест:',
                                    'Documents/cargo_spaces_instruction.pdf')
