@@ -714,7 +714,8 @@ def get_user_text(message):
         chapter2 = types.KeyboardButton('Видео инструкции Вымпелком')
         chapter3 = types.KeyboardButton('Презентация Вымпелком')
         chapter4 = types.KeyboardButton('ЭДО')
-        markup.add(chapter1, chapter2, chapter3, chapter4)
+        chapter5 = types.KeyboardButton('Тест ВЫМПЕЛКОМ + ЭДО')
+        markup.add(chapter1, chapter2, chapter3, chapter4, chapter5)
         bot.send_message(message.chat.id, 'Выберите интересующий раздел\n'
                                           '\n'
                                           'Для возврата нажмите /home', parse_mode='html', reply_markup=markup)
@@ -760,7 +761,7 @@ def get_user_text(message):
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
         chapter1 = types.KeyboardButton('Презентация ЭДО - Вымпелком')
         chapter2 = types.KeyboardButton('Видеоурок ЭДО - Вымпелком')
-        chapter3 = types.KeyboardButton('Тест ЭДО - Вымпелком')
+        chapter3 = types.KeyboardButton('Тест ЭДО')
         markup.add(chapter1, chapter2, chapter3)
         bot.send_message(message.chat.id, 'Выберите интересующий раздел\n'
                                           '\n'
@@ -778,9 +779,9 @@ def get_user_text(message):
                                           '\n'
                                           'Для возврата нажмите /home')
 
-    elif message.text == 'Тест ЭДО - Вымпелком':
+    elif message.text == 'Тест ЭДО':
         markup = types.InlineKeyboardMarkup()
-        markup.add(types.InlineKeyboardButton('Тест ЭДО - Вымпелком', url='https://short.startexam.com/xICbjKBm'))
+        markup.add(types.InlineKeyboardButton('Тест ЭДО', url='https://short.startexam.com/xICbjKBm'))
         bot.send_message(message.chat.id, 'Перейдите по ссылке, чтобы пройти тест:', parse_mode='html',
                          reply_markup=markup)
         bot.send_message(message.chat.id, 'Для возврата в меню нажмите /home')
@@ -882,12 +883,13 @@ def get_user_text(message):
         chapter2 = types.KeyboardButton('Тест Нетбайнет (Мегафон)')
         chapter3 = types.KeyboardButton('Тест ТРЕЙД-ИН')
         chapter4 = types.KeyboardButton('Тест по базовому обучению')
-        chapter5 = types.KeyboardButton('Тест ЭДО - Вымпелком')
+        chapter5 = types.KeyboardButton('Тест ЭДО')
         chapter6 = types.KeyboardButton('Тест Почтоматы и ПВЗ')
         chapter7 = types.KeyboardButton('Тест МФК ДЖАМИЛЬКО МОН')
         chapter8 = types.KeyboardButton('Тест Ростелеком Регионы')
         chapter9 = types.KeyboardButton('Тест Температурные грузы')
-        markup.add(chapter1, chapter5, chapter2, chapter3, chapter4, chapter6, chapter7, chapter8, chapter9)
+        chapter10 = types.InlineKeyboardButton('Тест ВЫМПЕЛКОМ + ЭДО')
+        markup.add(chapter1, chapter5, chapter2, chapter3, chapter4, chapter6, chapter7, chapter8, chapter9, chapter10)
         bot.send_message(message.chat.id, 'Для возврата нажмите /home', parse_mode='html', reply_markup=markup)
 
     elif message.text == 'Тест Вымпелком':
@@ -923,6 +925,12 @@ def get_user_text(message):
     elif message.text == 'Тест Ростелеком Регионы':
         markup = types.InlineKeyboardMarkup()
         markup.add(types.InlineKeyboardButton('Тест Ростелеком Регионы', url='https://short.startexam.com/iA3VyF79'))
+        bot.send_message(message.chat.id, 'Перейдите по ссылке, чтобы пройти тестирование:', parse_mode='html', reply_markup=markup)
+        bot.send_message(message.chat.id, 'Для возврата в меню нажмите /home')
+
+    elif message.text == 'Тест ВЫМПЕЛКОМ + ЭДО':
+        markup = types.InlineKeyboardMarkup()
+        markup.add(types.InlineKeyboardButton('Тест ВЫМПЕЛКОМ + ЭДО', url='https://short.startexam.com/C2dLUVEv'))
         bot.send_message(message.chat.id, 'Перейдите по ссылке, чтобы пройти тестирование:', parse_mode='html', reply_markup=markup)
         bot.send_message(message.chat.id, 'Для возврата в меню нажмите /home')
 
@@ -1094,7 +1102,9 @@ def get_user_text(message):
         chapter1 = types.KeyboardButton('1-й квартал 2023')
         chapter2 = types.KeyboardButton('2-й квартал 2023')
         chapter3 = types.KeyboardButton('3-й квартал 2023')
-        markup.add(chapter1, chapter2, chapter3)
+        chapter4 = types.KeyboardButton('4-й квартал 2023')
+        chapter5 = types.KeyboardButton('1-й квартал 2024')
+        markup.add(chapter1, chapter2, chapter3, chapter4, chapter5)
         bot.send_message(message.chat.id, 'Для возврата нажмите /home', parse_mode='html', reply_markup=markup)
 
     elif message.text == '1-й квартал 2023':
@@ -1112,6 +1122,14 @@ def get_user_text(message):
         send_document_with_message(bot, message.chat.id,
                                    'Лучшие Регионы:',
                                    'Documents/best_emp_region_III ch.pdf')
+    elif message.text == '4-й квартал 2023':
+        send_document_with_message(bot, message.chat.id,
+                                   'Лучшие сотрудники 4-й квартал 2023:',
+                                   'Documents/best_emp_all_4_ch_2023.pdf')
+    elif message.text == '1-й квартал 2024':
+        send_document_with_message(bot, message.chat.id,
+                                   'Лучшие сотрудники 1-й квартал 2024:',
+                                   'Documents/best_emp_all_1 ch_2024.pdf')
 
     else:
         bot.send_message(message.chat.id,'Для возврата в начало нажмите /home\n'
