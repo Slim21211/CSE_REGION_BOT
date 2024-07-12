@@ -214,6 +214,7 @@ def start(message):
     tips = types.KeyboardButton("Чаевые для курьера")
     restor = types.KeyboardButton("РЕСТОР")
     cargo_spaces = types.KeyboardButton("Привязка грузовых мест в МПК при сборе заказа. Сдача груза на склад в ячейку")
+    stops = types.KeyboardButton('СТОПы')
     admin = types.KeyboardButton("Функции для администраторов")
     markup.row(interns, study)
     markup.row(cargo, post_office)
@@ -226,7 +227,7 @@ def start(message):
     markup.row(temperature, best)
     markup.row(high_education, damage_fix)
     markup.row(tips, restor)
-    markup.row(cargo_spaces)
+    markup.row(cargo_spaces, stops)
     if message.from_user.id in admin_ids:
         markup.add(admin)
     bot.send_message(message.chat.id,'Выберите раздел:', parse_mode='html', reply_markup=markup)
@@ -888,8 +889,9 @@ def get_user_text(message):
         chapter7 = types.KeyboardButton('Тест МФК ДЖАМИЛЬКО МОН')
         chapter8 = types.KeyboardButton('Тест Ростелеком Регионы')
         chapter9 = types.KeyboardButton('Тест Температурные грузы')
-        chapter10 = types.InlineKeyboardButton('Тест ВЫМПЕЛКОМ + ЭДО')
-        markup.add(chapter1, chapter5, chapter2, chapter3, chapter4, chapter6, chapter7, chapter8, chapter9, chapter10)
+        chapter10 = types.KeyboardButton('Тест ВЫМПЕЛКОМ + ЭДО')
+        chapter11 = types.KeyboardButton('Тест Привязка грузовых мест в МПК')
+        markup.add(chapter1, chapter5, chapter2, chapter3, chapter4, chapter6, chapter7, chapter8, chapter9, chapter10, chapter11)
         bot.send_message(message.chat.id, 'Для возврата нажмите /home', parse_mode='html', reply_markup=markup)
 
     elif message.text == 'Тест Вымпелком':
@@ -1087,15 +1089,46 @@ def get_user_text(message):
                                    'Documents/restor_instruction.pdf')
 
     elif message.text == 'Привязка грузовых мест в МПК при сборе заказа. Сдача груза на склад в ячейку':
+        markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
+        chapter1 = types.KeyboardButton('Презентация привязка грузовых мест в МПК')
+        chapter2 = types.KeyboardButton('Памятка по привязке ГМХ в МПК')
+        chapter3 = types.KeyboardButton('Памятка по сдаче груза на склад')
+        chapter4 = types.KeyboardButton('Инструкция по привязке грузовых мест в МПК')
+        chapter5 = types.KeyboardButton('Тест Привязка грузовых мест в МПК')
+        markup.row(chapter1)
+        markup.row(chapter2)
+        markup.row(chapter3)
+        markup.row(chapter4)
+        markup.row(chapter5)
+        bot.send_message(message.chat.id, 'Для возврата нажмите /home', parse_mode='html', reply_markup=markup)
+
+    elif message.text == 'Презентация привязка грузовых мест в МПК':
         send_document_with_message(bot, message.chat.id, 'Презентация привязка грузовых мест:',
                                    'Documents/cargo_spaces_presentation.pdf', False)
+
+    elif message.text == 'Памятка по привязке ГМХ в МПК':
         send_document_with_message(bot, message.chat.id, 'Памятка по привязке ГМХ в МПК:',
                                    'Documents/cargo_spaces_reminder_binding.pdf', False)
+
+    elif message.text == 'Памятка по сдаче груза на склад':
         send_document_with_message(bot, message.chat.id, 'Памятка по сдаче груза на склад:',
                                    'Documents/cargo_spaces_reminder.pdf', False)
+
+    elif message.text == 'Инструкция по привязке грузовых мест в МПК':
         send_document_with_message(bot, message.chat.id,
-                                   'Инструкция по привязке грузовых мест:',
+                                   'Инструкция по привязке грузовых мест в МПК:',
                                    'Documents/cargo_spaces_instruction.pdf')
+
+    elif message.text == 'Тест Привязка грузовых мест в МПК':
+        markup = types.InlineKeyboardMarkup()
+        markup.add(types.InlineKeyboardButton('Тест Привязка грузовых мест в МПК', url='https://short.startexam.com/XzTylbnc'))
+        bot.send_message(message.chat.id, 'Перейдите по ссылке, чтобы пройти тестирование:', parse_mode='html', reply_markup=markup)
+        bot.send_message(message.chat.id, 'Для возврата в меню нажмите /home')
+
+    elif message.text == 'СТОПы':
+        send_document_with_message(bot, message.chat.id,
+                                   'Памятка по СТОПам:',
+                                   'Documents/stops_reminder.pdf')
 
     elif message.text == 'Программа "Лучший сотрудник"':
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
