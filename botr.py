@@ -203,7 +203,7 @@ def start(message):
     netbynet = types.KeyboardButton('НэтБайНэт')
     trade_in = types.KeyboardButton('ТРЕЙД-ИН')
     self_collection = types.KeyboardButton('Самоинкассация')
-    vsd = types.KeyboardButton("ВСД")
+    vsd = types.KeyboardButton("ВСД / ВПД")
     casarte = types.KeyboardButton("Casarte")
     jamilco = types.KeyboardButton("МФК ДЖАМИЛЬКО МОН")
     best = types.KeyboardButton('Программа "Лучший сотрудник"')
@@ -215,6 +215,7 @@ def start(message):
     restor = types.KeyboardButton("РЕСТОР")
     cargo_spaces = types.KeyboardButton("Привязка грузовых мест в МПК при сборе заказа. Сдача груза на склад в ячейку")
     stops = types.KeyboardButton('СТОПы')
+    dispatch = types.KeyboardButton('Диспетчер')
     admin = types.KeyboardButton("Функции для администраторов")
     markup.row(interns, study)
     markup.row(cargo, post_office)
@@ -228,6 +229,7 @@ def start(message):
     markup.row(high_education, damage_fix)
     markup.row(tips, restor)
     markup.row(cargo_spaces, stops)
+    markup.row(dispatch)
     if message.from_user.id in admin_ids:
         markup.add(admin)
     bot.send_message(message.chat.id,'Выберите раздел:', parse_mode='html', reply_markup=markup)
@@ -716,10 +718,39 @@ def get_user_text(message):
         chapter3 = types.KeyboardButton('Презентация Вымпелком')
         chapter4 = types.KeyboardButton('ЭДО')
         chapter5 = types.KeyboardButton('Тест ВЫМПЕЛКОМ + ЭДО')
-        markup.add(chapter1, chapter2, chapter3, chapter4, chapter5)
+        chapter6 = types.KeyboardButton('Динамические СИМ')
+        markup.add(chapter1, chapter2, chapter3, chapter4, chapter6, chapter5)
         bot.send_message(message.chat.id, 'Выберите интересующий раздел\n'
                                           '\n'
                                           'Для возврата нажмите /home', parse_mode='html', reply_markup=markup)
+
+    elif message.text == 'Динамические СИМ':
+        markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
+        chapter1 = types.KeyboardButton('Презентация Динамические СИМ')
+        chapter2 = types.KeyboardButton('Памятка Динамические СИМ')
+        chapter3 = types.KeyboardButton('Тест Динамические СИМ Вымпелком')
+        markup.add(chapter1, chapter2, chapter3)
+        bot.send_message(message.chat.id, 'Выберите интересующий раздел\n'
+                                          '\n'
+                                          'Для возврата нажмите /home', parse_mode='html', reply_markup=markup)
+
+    elif message.text == 'Презентация Динамические СИМ':
+        send_document_with_message(bot, message.chat.id,
+                                   'Презентация Динамические СИМ:',
+                                   'Documents/vympel_dynamic_sim_presentation.pdf')
+
+    elif message.text == 'Памятка Динамические СИМ':
+        send_document_with_message(bot, message.chat.id,
+                                   'Памятка Динамические СИМ:',
+                                   'Documents/vympel_dynamic_sim_reminder.pdf')
+
+    elif message.text == 'Тест Динамические СИМ Вымпелком':
+        markup = types.InlineKeyboardMarkup()
+        markup.add(types.InlineKeyboardButton('Тест Динамические СИМ Вымпелком', url='https://short.startexam.com/zeLg6Bbi'))
+        bot.send_message(message.chat.id, 'Перейдите по ссылке, чтобы пройти тест:', parse_mode='html',
+                         reply_markup=markup)
+        bot.send_message(message.chat.id, 'Для возврата в меню нажмите /home')
+
     elif message.text == 'Инструкции Вымпелком':
         send_document_with_message(bot, message.chat.id,
                                    'Инструкция для курьера (Возврат АБО):',
@@ -891,7 +922,23 @@ def get_user_text(message):
         chapter9 = types.KeyboardButton('Тест Температурные грузы')
         chapter10 = types.KeyboardButton('Тест ВЫМПЕЛКОМ + ЭДО')
         chapter11 = types.KeyboardButton('Тест Привязка грузовых мест в МПК')
-        markup.add(chapter1, chapter5, chapter2, chapter3, chapter4, chapter6, chapter7, chapter8, chapter9, chapter10, chapter11)
+        chapter12 = types.KeyboardButton('Тест Динамические СИМ Вымпелком')
+        chapter13 = types.KeyboardButton('Тест ВСД / ВПД')
+        markup.add(
+            chapter1,
+            chapter5,
+            chapter2,
+            chapter3,
+            chapter4,
+            chapter6,
+            chapter7,
+            chapter8,
+            chapter9,
+            chapter10,
+            chapter11,
+            chapter12,
+            chapter13
+        )
         bot.send_message(message.chat.id, 'Для возврата нажмите /home', parse_mode='html', reply_markup=markup)
 
     elif message.text == 'Тест Вымпелком':
@@ -943,11 +990,18 @@ def get_user_text(message):
         markup.add(chapter1, chapter2)
         bot.send_message(message.chat.id, 'Для возврата нажмите /home', parse_mode='html', reply_markup=markup)
 
-    elif message.text == 'ВСД':
+    elif message.text == 'Тест ВСД / ВПД':
+        markup = types.InlineKeyboardMarkup()
+        markup.add(types.InlineKeyboardButton('Тест ВСД / ВПД', url='https://short.startexam.com/rFE5wIiY'))
+        bot.send_message(message.chat.id, 'Перейдите по ссылке, чтобы пройти тестирование:', parse_mode='html', reply_markup=markup)
+        bot.send_message(message.chat.id, 'Для возврата в меню нажмите /home')
+
+    elif message.text == 'ВСД / ВПД':
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
         chapter1 = types.KeyboardButton('Памятка по заполнению ВСД клиентов JTI, Нестле')
-        chapter2 = types.KeyboardButton('Видео по заполнению ВСД клиентов JTI, Нестле')
-        markup.add(chapter1, chapter2)
+        chapter2 = types.KeyboardButton('Презентация ВСД / ВПД')
+        chapter3 = types.KeyboardButton('Тест ВСД / ВПД')
+        markup.add(chapter1, chapter2, chapter3)
         bot.send_message(message.chat.id, 'Для возврата нажмите /home', parse_mode='html', reply_markup=markup)
 
     elif message.text == 'Памятка по заполнению ВСД клиентов JTI, Нестле':
@@ -955,12 +1009,10 @@ def get_user_text(message):
                                    'Ознакомьтесь с памяткой по заполнению ВСД клиентов JTI, Нестле:',
                                    'Documents/VSD_reminder.pdf')
 
-    elif message.text == 'Видео по заполнению ВСД клиентов JTI, Нестле':
-        # video = open('', 'rb')
-        # bot.send_document(message.chat.id, video)
-        bot.send_message(message.chat.id, 'В этом разделе пока нет обучающих материалов, но они очень скоро появятся)\n'
-                                          '\n'
-                                          'Для возврата нажмите /home')
+    elif message.text == 'Презентация ВСД / ВПД':
+        send_document_with_message(bot, message.chat.id,
+                                   'Ознакомьтесь с презентацией ВСД / ВПД:',
+                                   'Documents/VSD_presentation.pdf')
 
     elif message.text == 'МФК ДЖАМИЛЬКО МОН':
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
@@ -1073,6 +1125,12 @@ def get_user_text(message):
         send_video_link(bot, message.chat.id, 'ТрейдИн',
                         'https://drive.google.com/file/d/1XFQpo6V32_dRcoOG5MSamr-JbFmn5JDq/view?usp=drive_link',
                         final_text=False)
+        send_video_link(bot, message.chat.id, 'Ростелеком ЦО',
+                        'https://drive.google.com/file/d/16WIsQFq7DQLKJiSEmhdnAnNcCbV7gORz/view?usp=drive_link',
+                        final_text=False)
+        send_video_link(bot, message.chat.id, 'Ростелеком регионы',
+                        'https://drive.google.com/file/d/1wmySDFHdXNqOlKsKa6qIN582oRBPvjf8/view?usp=drive_link',
+                        final_text=False)
         send_video_link(bot, message.chat.id, 'Температурные грузы',
                         'https://drive.google.com/file/d/1GEdgGAA9cK9FKqJzeGCta0CvmIPirtvT/view?usp=drive_link')
 
@@ -1129,6 +1187,18 @@ def get_user_text(message):
         send_document_with_message(bot, message.chat.id,
                                    'Памятка по СТОПам:',
                                    'Documents/stops_reminder.pdf')
+
+    elif message.text == 'Диспетчер':
+        markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
+        chapter1 = types.KeyboardButton('КМОЗГ')
+        markup.add(chapter1)
+        bot.send_message(message.chat.id, 'Выберите интересующий раздел\n'
+                                          '\n'
+                                          'Для возврата нажмите /home', parse_mode='html', reply_markup=markup)
+
+    elif message.text == 'КМОЗГ':
+        send_video_link(bot, message.chat.id, 'КМОЗГ',
+                        'https://drive.google.com/file/d/1vSZXKtBs9o6EYfQjtIzKFm47DQg9irig/view?usp=drive_link')
 
     elif message.text == 'Программа "Лучший сотрудник"':
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
