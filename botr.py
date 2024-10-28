@@ -216,6 +216,7 @@ def start(message):
     cargo_spaces = types.KeyboardButton("Привязка грузовых мест в МПК при сборе заказа. Сдача груза на склад в ячейку")
     stops = types.KeyboardButton('СТОПы')
     dispatch = types.KeyboardButton('Диспетчер')
+    labor_protection = types.KeyboardButton('Охрана труда')
     admin = types.KeyboardButton("Функции для администраторов")
     markup.row(interns, study)
     markup.row(cargo, post_office)
@@ -229,7 +230,7 @@ def start(message):
     markup.row(high_education, damage_fix)
     markup.row(tips, restor)
     markup.row(cargo_spaces, stops)
-    markup.row(dispatch)
+    markup.row(dispatch, labor_protection)
     if message.from_user.id in admin_ids:
         markup.add(admin)
     bot.send_message(message.chat.id,'Выберите раздел:', parse_mode='html', reply_markup=markup)
@@ -1200,6 +1201,100 @@ def get_user_text(message):
         send_video_link(bot, message.chat.id, 'КМОЗГ',
                         'https://drive.google.com/file/d/1vSZXKtBs9o6EYfQjtIzKFm47DQg9irig/view?usp=drive_link')
 
+    elif message.text == 'Охрана труда':
+        markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
+        chapter1 = types.KeyboardButton('Охрана труда. Основной раздел')
+        chapter2 = types.KeyboardButton('Личная безопасность при проведении работ')
+        chapter3 = types.KeyboardButton('Электробезопасность')
+        chapter4 = types.KeyboardButton('Производственная санитария и личная гигиена')
+        chapter5 = types.KeyboardButton('Средства индивидуальной защиты')
+        chapter6 = types.KeyboardButton('Аварийные ситуации')
+        chapter7 = types.KeyboardButton('Первая помощь пострадавшим')
+        markup.row(chapter1)
+        markup.add(chapter2, chapter3, chapter4, chapter5, chapter6, chapter7)
+        bot.send_message(message.chat.id, 'Выберите интересующий раздел\n'
+                                          '\n'
+                                          'Для возврата нажмите /home', parse_mode='html', reply_markup=markup)
+
+    elif message.text == 'Охрана труда. Основной раздел':
+        send_document_with_message(bot, message.chat.id,
+                                   'Охрана труда. Основной раздел:',
+                                   'Documents/labor_protection/1. Памятка «Вводный инструктаж по охране труда».pdf')
+
+    elif message.text == 'Личная безопасность при проведении работ':
+        send_document_with_message(bot, message.chat.id,
+                                   'Личная безопасность при проведении работ:',
+                                   'Documents/labor_protection/1.1. Памятка «Меры безопасности при передвижении в помещениях».pdf', False)
+        send_document_with_message(bot, message.chat.id,
+                                   'Личная безопасность при проведении работ:',
+                                   'Documents/labor_protection/1.2. Памятка «Выполнение погрузочно-разгрузочных работ».pdf', False, False)
+        send_document_with_message(bot, message.chat.id,
+                                   'Личная безопасность при проведении работ:',
+                                   'Documents/labor_protection/1.3. Памятка «Использование погрузчика».pdf', False, False)
+        send_document_with_message(bot, message.chat.id,
+                                   'Личная безопасность при проведении работ:',
+                                   'Documents/labor_protection/1.4. Памятка «Безопасное обращение с оборудованием и инструментом».pdf', False, False)
+        send_document_with_message(bot, message.chat.id,
+                                   'Личная безопасность при проведении работ:',
+                                   'Documents/labor_protection/1.5. Памятка «Безопасное управление корпоративным транспортом».pdf', True, False)
+
+    elif message.text == 'Электробезопасность':
+        send_document_with_message(bot, message.chat.id,
+                                   'Электробезопасность:',
+                                   'Documents/labor_protection/2.1. Памятка «Требования электробезопасности».pdf')
+
+    elif message.text == 'Производственная санитария и личная гигиена':
+        send_document_with_message(bot, message.chat.id,
+                                   'Производственная санитария и личная гигиена:',
+                                   'Documents/labor_protection/3.1. Памятка «Производственная санитария и гигиена труда».pdf')
+
+    elif message.text == 'Средства индивидуальной защиты':
+        send_document_with_message(bot, message.chat.id,
+                                   'Средства индивидуальной защиты:',
+                                   'Documents/labor_protection/4.1. Памятка «Использование и применение СИЗ».pdf')
+
+    elif message.text == 'Аварийные ситуации':
+        send_document_with_message(bot, message.chat.id,
+                                   'Аварийные ситуации:',
+                                   'Documents/labor_protection/5.1. Памятка «Действия при аварии».pdf', False)
+        send_document_with_message(bot, message.chat.id,
+                                   'Аварийные ситуации:',
+                                   'Documents/labor_protection/5.2. Памятка «Действия при пожаре».pdf', False, False)
+        send_document_with_message(bot, message.chat.id,
+                                   'Аварийные ситуации:',
+                                   'Documents/labor_protection/5.3. Памятка «Действия в условиях теругроз».pdf', False, False)
+        send_document_with_message(bot, message.chat.id,
+                                   'Аварийные ситуации:',
+                                   'Documents/labor_protection/5.4. Памятка «Действия при стихийных бедствиях».pdf', False, False)
+        send_document_with_message(bot, message.chat.id,
+                                   'Аварийные ситуации:',
+                                   'Documents/labor_protection/5.5. Памятка «Действия при аварии на транспорте».pdf', True, False)
+
+    elif message.text == 'Первая помощь пострадавшим':
+        send_document_with_message(bot, message.chat.id,
+                                   'Первая помощь пострадавшим:',
+                                   'Documents/labor_protection/6.1. Памятка «ПП при кровотечениях».pdf',False)
+        send_document_with_message(bot, message.chat.id,
+                                   'Первая помощь пострадавшим:',
+                                   'Documents/labor_protection/6.2. Памятка «ПП при проникающих ранениях».pdf', False, False)
+        send_document_with_message(bot, message.chat.id,
+                                   'Первая помощь пострадавшим:',
+                                   'Documents/labor_protection/6.3. Памятка «ПП при вывихах и переломах».pdf', False, False)
+        send_document_with_message(bot, message.chat.id,
+                                   'Первая помощь пострадавшим:',
+                                   'Documents/labor_protection/6.4. Памятка «ПП при ожогах и обморожениях».pdf', False, False)
+        send_document_with_message(bot, message.chat.id,
+                                   'Первая помощь пострадавшим:',
+                                   'Documents/labor_protection/6.5. Памятка «ПП при отравлениях».pdf',
+                                   False, False)
+        send_document_with_message(bot, message.chat.id,
+                                   'Первая помощь пострадавшим:',
+                                   'Documents/labor_protection/6.6. Памятка «ПП при ОНСД».pdf',
+                                   False, False)
+        send_document_with_message(bot, message.chat.id,
+                                   'Первая помощь пострадавшим:',
+                                   'Documents/labor_protection/6.7. Памятка «Реанимация пострадавшего».pdf', True, False)
+
     elif message.text == 'Программа "Лучший сотрудник"':
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
         chapter1 = types.KeyboardButton('1-й квартал 2023')
@@ -1207,7 +1302,8 @@ def get_user_text(message):
         chapter3 = types.KeyboardButton('3-й квартал 2023')
         chapter4 = types.KeyboardButton('4-й квартал 2023')
         chapter5 = types.KeyboardButton('1-й квартал 2024')
-        markup.add(chapter1, chapter2, chapter3, chapter4, chapter5)
+        chapter6 = types.KeyboardButton('2-й квартал 2024')
+        markup.add(chapter1, chapter2, chapter3, chapter4, chapter5, chapter6)
         bot.send_message(message.chat.id, 'Для возврата нажмите /home', parse_mode='html', reply_markup=markup)
 
     elif message.text == '1-й квартал 2023':
@@ -1233,6 +1329,10 @@ def get_user_text(message):
         send_document_with_message(bot, message.chat.id,
                                    'Лучшие сотрудники 1-й квартал 2024:',
                                    'Documents/best_emp_all_1 ch_2024.pdf')
+    elif message.text == '2-й квартал 2024':
+        send_document_with_message(bot, message.chat.id,
+                                   'Лучшие сотрудники 2-й квартал 2024:',
+                                   'Documents/best_emp_all_2 ch_2024.pdf')
 
     else:
         bot.send_message(message.chat.id,'Для возврата в начало нажмите /home\n'
