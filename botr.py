@@ -1153,11 +1153,13 @@ def get_user_text(message):
         chapter2 = types.KeyboardButton('Памятка по привязке ГМХ в МПК')
         chapter3 = types.KeyboardButton('Памятка по сдаче груза на склад')
         chapter4 = types.KeyboardButton('Инструкция по привязке грузовых мест в МПК')
+        chapter6 = types.KeyboardButton('Видеопрезентация по привязке грузовых мест в МПК')
         chapter5 = types.KeyboardButton('Тест Привязка грузовых мест в МПК')
         markup.row(chapter1)
         markup.row(chapter2)
         markup.row(chapter3)
         markup.row(chapter4)
+        markup.row(chapter6)
         markup.row(chapter5)
         bot.send_message(message.chat.id, 'Для возврата нажмите /home', parse_mode='html', reply_markup=markup)
 
@@ -1177,6 +1179,10 @@ def get_user_text(message):
         send_document_with_message(bot, message.chat.id,
                                    'Инструкция по привязке грузовых мест в МПК:',
                                    'Documents/cargo_spaces_instruction.pdf')
+
+    elif message.text == 'Видеопрезентация по привязке грузовых мест в МПК':
+        send_video_link(bot, message.chat.id, 'Видеопрезентация по привязке грузовых мест в МПК',
+                        'https://drive.google.com/file/d/1I6jNK2tpGaW-tEqpFMSgazLnQKYiV79b/view?usp=drive_link')
 
     elif message.text == 'Тест Привязка грузовых мест в МПК':
         markup = types.InlineKeyboardMarkup()
