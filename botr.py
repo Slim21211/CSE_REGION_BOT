@@ -216,6 +216,7 @@ def start(message):
     cargo_spaces = types.KeyboardButton("Привязка грузовых мест в МПК при сборе заказа. Сдача груза на склад в ячейку")
     stops = types.KeyboardButton('СТОПы')
     dispatch = types.KeyboardButton('Диспетчер')
+    mistakes = types.KeyboardButton('Обучение по ошибкам')
     labor_protection = types.KeyboardButton('Охрана труда')
     admin = types.KeyboardButton("Функции для администраторов")
     markup.row(interns, study)
@@ -230,7 +231,8 @@ def start(message):
     markup.row(high_education, damage_fix)
     markup.row(tips, restor)
     markup.row(cargo_spaces, stops)
-    markup.row(dispatch, labor_protection)
+    markup.row(dispatch, mistakes)
+    markup.row(labor_protection)
     if message.from_user.id in admin_ids:
         markup.add(admin)
     bot.send_message(message.chat.id,'Выберите раздел:', parse_mode='html', reply_markup=markup)
@@ -675,7 +677,10 @@ def get_user_text(message):
     elif message.text == 'НСТ курьер':
         send_document_with_message(bot, message.chat.id,
                                    'Ознакомьтесь с новой системой трейсов:',
-                                   'Documents/traces-courier.pdf')
+                                   'Documents/traces-courier.pdf', False)
+        send_document_with_message(bot, message.chat.id,
+                                   '',
+                                   'Documents/traces_scheme.pdf', True, False)
 
     elif message.text == 'НСТ диспетчер':
         send_document_with_message(bot, message.chat.id,
@@ -683,9 +688,9 @@ def get_user_text(message):
                                    'Documents/disp_traces_presentation.pdf')
 
     elif message.text == 'Работа с трейсами ПВЗ':
-        send_document_with_message(bot, message.chat.id,
-                                   'Ознакомьтесь с порядком работы с трейсами ПВЗ:',
-                                   'Documents/traces_work.pdf')
+        bot.send_message(message.chat.id, 'На актуализации...\n'
+                                          '\n'
+                                          'Для возврата нажмите /home', parse_mode='html')
 
     elif message.text == 'НСТ логист':
         send_document_with_message(bot, message.chat.id,
@@ -1241,6 +1246,11 @@ def get_user_text(message):
     elif message.text == 'КМОЗГ':
         send_video_link(bot, message.chat.id, 'КМОЗГ',
                         'https://drive.google.com/file/d/1vSZXKtBs9o6EYfQjtIzKFm47DQg9irig/view?usp=drive_link')
+
+    elif message.text == 'Обучение по ошибкам':
+        send_document_with_message(bot, message.chat.id,
+                                   'Презентация по работе над ошибками:',
+                                   'Documents/mistakes.pdf')
 
     elif message.text == 'Охрана труда':
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
