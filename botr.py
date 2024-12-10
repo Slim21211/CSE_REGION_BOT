@@ -1354,7 +1354,8 @@ def get_user_text(message):
         chapter4 = types.KeyboardButton('4-й квартал 2023')
         chapter5 = types.KeyboardButton('1-й квартал 2024')
         chapter6 = types.KeyboardButton('2-й квартал 2024')
-        markup.add(chapter1, chapter2, chapter3, chapter4, chapter5, chapter6)
+        chapter7 = types.KeyboardButton('3-й квартал 2024')
+        markup.add(chapter1, chapter2, chapter3, chapter4, chapter5, chapter6, chapter7)
         bot.send_message(message.chat.id, 'Для возврата нажмите /home', parse_mode='html', reply_markup=markup)
 
     elif message.text == '1-й квартал 2023':
@@ -1384,6 +1385,10 @@ def get_user_text(message):
         send_document_with_message(bot, message.chat.id,
                                    'Лучшие сотрудники 2-й квартал 2024:',
                                    'Documents/best_emp_all_2 ch_2024.pdf')
+    elif message.text == '3-й квартал 2024':
+        send_document_with_message(bot, message.chat.id,
+                                   'Лучшие сотрудники 3-й квартал 2024:',
+                                   'Documents/best_emp_all_3 ch_2024.pdf')
 
     else:
         bot.send_message(message.chat.id,'Для возврата в начало нажмите /home\n'
