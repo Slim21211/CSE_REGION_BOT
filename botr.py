@@ -819,7 +819,8 @@ def get_user_text(message):
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
         chapter1 = types.KeyboardButton('Температурные грузы для курьеров')
         chapter2 = types.KeyboardButton('Температурные грузы для диспетчеров')
-        markup.add(chapter1, chapter2)
+        chapter3 = types.KeyboardButton('Температурные грузы видео')
+        markup.add(chapter1, chapter2, chapter3)
         bot.send_message(message.chat.id, 'Для возврата нажмите /home', parse_mode='html', reply_markup=markup)
 
     elif message.text == 'Температурные грузы для курьеров':
@@ -864,6 +865,10 @@ def get_user_text(message):
         bot.send_message(message.chat.id, 'Перейдите по ссылке, чтобы пройти тестирование:', parse_mode='html', reply_markup=markup)
         bot.send_message(message.chat.id, 'Для возврата в меню нажмите /home')
 
+    elif message.text == 'Температурные грузы видео':
+        send_video_link(bot, message.chat.id, 'Температурные грузы',
+                        'https://drive.google.com/file/d/1GEdgGAA9cK9FKqJzeGCta0CvmIPirtvT/view?usp=drive_link')
+
     elif message.text == 'Тест Акт осмотра вложимого':
         markup = types.InlineKeyboardMarkup()
         markup.add(types.InlineKeyboardButton('Тест Акт осмотра вложимого', url='https://short.startexam.com/KZNee4D8'))
@@ -897,12 +902,6 @@ def get_user_text(message):
     elif message.text == 'Продвинутое обучение':
         send_video_link(bot, message.chat.id, 'Джамилько',
                         'https://drive.google.com/file/d/1lG3ykpqKgnjaM53ShjYHT20fQacuQm7N/view?usp=drive_link',
-                        final_text=False)
-        send_video_link(bot, message.chat.id, 'Ростелеком ЦО',
-                        'https://drive.google.com/file/d/16WIsQFq7DQLKJiSEmhdnAnNcCbV7gORz/view?usp=drive_link',
-                        final_text=False)
-        send_video_link(bot, message.chat.id, 'Ростелеком регионы',
-                        'https://drive.google.com/file/d/1wmySDFHdXNqOlKsKa6qIN582oRBPvjf8/view?usp=drive_link',
                         final_text=False)
         send_video_link(bot, message.chat.id, 'Температурные грузы',
                         'https://drive.google.com/file/d/1GEdgGAA9cK9FKqJzeGCta0CvmIPirtvT/view?usp=drive_link')
@@ -1033,7 +1032,8 @@ def get_user_text(message):
         chapter5 = types.KeyboardButton('1-й квартал 2024')
         chapter6 = types.KeyboardButton('2-й квартал 2024')
         chapter7 = types.KeyboardButton('3-й квартал 2024')
-        markup.add(chapter5, chapter6, chapter7)
+        chapter8 = types.KeyboardButton('4-й квартал 2024')
+        markup.add(chapter5, chapter6, chapter7, chapter8)
         bot.send_message(message.chat.id, 'Для возврата нажмите /home', parse_mode='html', reply_markup=markup)
 
     elif message.text == '1-й квартал 2024':
@@ -1048,6 +1048,26 @@ def get_user_text(message):
         send_document_with_message(bot, message.chat.id,
                                    'Лучшие сотрудники 3-й квартал 2024:',
                                    'Documents/best_emp_all_3 ch_2024.pdf')
+
+    elif message.text == '4-й квартал 2024':
+        markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
+        chapter1 = types.KeyboardButton('Лучшие сотрудники Департамента доставки 4-й квартал')
+        chapter2 = types.KeyboardButton('Лучшие сотрудники Департамента регионального развития 4-й квартал')
+        markup.row(chapter1)
+        markup.row(chapter2)
+        bot.send_message(message.chat.id, 'Для возврата нажмите /home', parse_mode='html', reply_markup=markup)
+
+
+    elif message.text == 'Лучшие сотрудники Департамента доставки 4-й квартал':
+        send_document_with_message(bot, message.chat.id,
+                                   'Лучшие сотрудники Департамента доставки 4-й квартал:',
+                                   'Documents/best_emp_mos_4 ch_2024.pdf')
+
+
+    elif message.text == 'Лучшие сотрудники Департамента регионального развития 4-й квартал':
+        send_document_with_message(bot, message.chat.id,
+                                   'Лучшие сотрудники Департамента регионального развития 4-й квартал:',
+                                   'Documents/best_emp_region_4 ch_2024.pdf')
 
     else:
         bot.send_message(message.chat.id,'Для возврата в начало нажмите /home\n'
