@@ -7,7 +7,7 @@ from telebot import types
 
 telegram_bot_token = config('TELEGRAM_BOT_TOKEN')
 bot = telebot.TeleBot(telegram_bot_token, parse_mode='html')
-admin_ids = [349682954, 1793932185]
+admin_ids = [349682954]
 pending_message = {}
 
 connect_users = sqlite3.connect('users.db')
@@ -212,6 +212,7 @@ def start(message):
     dispatch = types.KeyboardButton('Диспетчер')
     mistakes = types.KeyboardButton('Обучение по ошибкам')
     labor_protection = types.KeyboardButton('Охрана труда')
+    search = types.KeyboardButton('🔍 Поиск')
     admin = types.KeyboardButton("Функции для администраторов")
     markup.row(interns, study)
     markup.row(cargo, post_office)
@@ -224,6 +225,7 @@ def start(message):
     markup.row(restor, stops)
     markup.row(dispatch, mistakes)
     markup.row(labor_protection)
+    markup.row(search)
     if message.from_user.id in admin_ids:
         markup.add(admin)
     bot.send_message(message.chat.id,'Выберите раздел:', parse_mode='html', reply_markup=markup)
@@ -1068,6 +1070,12 @@ def get_user_text(message):
         send_document_with_message(bot, message.chat.id,
                                    'Лучшие сотрудники Департамента регионального развития 4-й квартал:',
                                    'Documents/best_emp_region_4 ch_2024.pdf')
+
+    elif message.text == '🔍 Поиск':
+        bot.send_message(349682954, f'Пользователь {message.from_user.first_name} {message.from_user.last_name} нажал кнопку Поиск')
+        bot.send_message(message.chat.id, 'Данный раздел в разработке 🛠\n'
+                                          '\n'
+                                          'Для возврата в начало нажмите /home', parse_mode='html')
 
     else:
         bot.send_message(message.chat.id,'Для возврата в начало нажмите /home\n'
