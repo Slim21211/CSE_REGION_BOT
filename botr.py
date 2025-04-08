@@ -212,6 +212,7 @@ def start(message):
     dispatch = types.KeyboardButton('Диспетчер')
     mistakes = types.KeyboardButton('Обучение по ошибкам')
     labor_protection = types.KeyboardButton('Охрана труда')
+    parking = types.KeyboardButton('Правила парковки')
     search = types.KeyboardButton('🔍 Поиск')
     admin = types.KeyboardButton("Функции для администраторов")
     markup.row(interns, study)
@@ -224,7 +225,7 @@ def start(message):
     markup.row(high_education, damage_fix)
     markup.row(restor, stops)
     markup.row(dispatch, mistakes)
-    markup.row(labor_protection)
+    markup.row(parking, labor_protection)
     markup.row(search)
     if message.from_user.id in admin_ids:
         markup.add(admin)
@@ -1028,6 +1029,23 @@ def get_user_text(message):
         send_document_with_message(bot, message.chat.id,
                                    'Первая помощь пострадавшим:',
                                    'Documents/labor_protection/6.7. Памятка «Реанимация пострадавшего».pdf', True, False)
+
+    elif message.text == 'Правила парковки':
+        markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
+        chapter1 = types.KeyboardButton('Памятка по использованию «Паркоматики»')
+        chapter2 = types.KeyboardButton('Видео «Паркоматика»')
+        markup.row(chapter1)
+        markup.row(chapter2)
+        bot.send_message(message.chat.id, 'Для возврата нажмите /home', parse_mode='html', reply_markup=markup)
+
+    elif message.text == 'Памятка по использованию «Паркоматики»':
+        send_document_with_message(bot, message.chat.id,
+                                   'Памятка по использованию «Паркоматики»:',
+                                   'Documents/parking_reminder.pdf')
+
+    elif message.text == 'Видео «Паркоматика»':
+        send_video_link(bot, message.chat.id, 'Видео «Паркоматика»',
+                        'https://clck.ru/3Kuu4v')
 
     elif message.text == 'Программа "Лучший сотрудник"':
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
