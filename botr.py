@@ -2,12 +2,13 @@ import telebot
 import sqlite3
 from decouple import config
 from datetime import datetime
+import time
 
 from telebot import types
 
 telegram_bot_token = config('TELEGRAM_BOT_TOKEN')
 bot = telebot.TeleBot(telegram_bot_token, parse_mode='html')
-admin_ids = [349682954]
+admin_ids = [349682954, 223737494]
 pending_message = {}
 
 connect_users = sqlite3.connect('users.db')
@@ -139,44 +140,58 @@ def analytics(func: callable):
 @analytics
 def send(message):
     if message.chat.id in admin_ids:
-        bot.send_message(message.chat.id, 'Введите текст сообщения для рассылки:')
+        bot.send_message(message.chat.id, 'Отправьте сообщение для рассылки: текст или картинку с подписью.')
         bot.register_next_step_handler(message, confirm_message_step)
     else:
         bot.send_message(message.chat.id, 'Вы не можете делать рассылку в этом боте')
 
+
 def confirm_message_step(message):
-    text_to_send = message.text
-    pending_message[message.chat.id] = text_to_send
-    bot.send_message(message.chat.id, 'Подтвердите рассылку командой /confirm_send, или отправьте /cancel_send, чтобы отменить рассылку.')
+    if message.photo:
+        # Если админ отправил фото с подписью
+        file_id = message.photo[-1].file_id
+        caption = message.caption or ''
+        pending_message[message.chat.id] = {'type': 'photo', 'file_id': file_id, 'caption': caption}
+    else:
+        # Текстовое сообщение
+        text = message.text
+        pending_message[message.chat.id] = {'type': 'text', 'text': text}
+
+    bot.send_message(
+        message.chat.id,
+        'Подтвердите рассылку командой /confirm_send, или отправьте /cancel_send, чтобы отменить.'
+    )
+
 
 @bot.message_handler(commands=['confirm_send'])
 @analytics
 def confirm_send(message):
-    text_to_send = pending_message.get(message.chat.id)
-    if text_to_send:
-        bot.send_message(message.chat.id, 'Рассылка начата. Это может занять некоторое время.')
-        user_ids_to_send = set()  # Используем множество для хранения уникальных user_id
+    content = pending_message.get(message.chat.id)
+    if not content:
+        bot.send_message(message.chat.id, 'Отсутствует сообщение для рассылки.')
+        return
 
-        # Считываем user_id из вашей базы данных users.db
-        connect_users = sqlite3.connect('users.db')
-        cursor_users = connect_users.cursor()
-        cursor_users.execute("SELECT user_id FROM users_info")
-        for row in cursor_users.fetchall():
-            user_id = row[0]
-            user_ids_to_send.add(user_id)
+    bot.send_message(message.chat.id, 'Рассылка начата. Это может занять некоторое время.')
+    user_ids_to_send = set()
 
-        # Отправляем сообщение каждому уникальному user_id
-        for user_id in user_ids_to_send:
-            try:
-                bot.send_message(user_id, text_to_send)
-            except Exception as e:
-                print(f"Ошибка при отправке сообщения пользователю {user_id}: {e}")
+    connect_users = sqlite3.connect('users.db')
+    cursor_users = connect_users.cursor()
+    cursor_users.execute("SELECT user_id FROM users_info")
+    for row in cursor_users.fetchall():
+        user_ids_to_send.add(row[0])
+    connect_users.close()
 
-        connect_users.close()
-        bot.send_message(message.chat.id, 'Рассылка завершена.')
+    for user_id in user_ids_to_send:
+        try:
+            if content['type'] == 'text':
+                bot.send_message(user_id, content['text'])
+            elif content['type'] == 'photo':
+                bot.send_photo(user_id, content['file_id'], caption=content['caption'])
+        except Exception as e:
+            print(f"Ошибка при отправке пользователю {user_id}: {e}")
 
-    else:
-        bot.send_message(message.chat.id, 'Отсутствует текст сообщения для рассылки.')
+    bot.send_message(message.chat.id, 'Рассылка завершена.')
+
 
 @bot.message_handler(commands=['cancel_send'])
 @analytics
@@ -186,6 +201,62 @@ def cancel_send(message):
         bot.send_message(message.chat.id, 'Рассылка отменена.')
     else:
         bot.send_message(message.chat.id, 'Вы не можете отменить рассылку в этом боте.')
+
+def count_active_users(message):
+    bot.send_message(message.chat.id, 'Подсчёт активных пользователей начат. Пожалуйста, подождите...')
+
+    connect_users = sqlite3.connect('users.db')
+    cursor_users = connect_users.cursor()
+    cursor_users.execute("SELECT user_id FROM users_info")
+    user_ids = [row[0] for row in cursor_users.fetchall()]
+    connect_users.close()
+
+    active_count = 0
+    total_users = len(user_ids)
+    checked_users = 0
+
+    inactive_users = []
+
+    progress_message = bot.send_message(message.chat.id, f"Проверено 0 из {total_users} пользователей...")
+
+    for user_id in user_ids:
+        try:
+            bot.send_chat_action(user_id, 'typing')
+            active_count += 1
+        except:
+            inactive_users.append(user_id)  # Добавляем в список неактивных
+
+        checked_users += 1
+
+        if checked_users % 50 == 0 or checked_users == total_users:
+            try:
+                bot.edit_message_text(
+                    chat_id=progress_message.chat.id,
+                    message_id=progress_message.message_id,
+                    text=f"Проверено {checked_users} из {total_users} пользователей..."
+                )
+            except:
+                pass
+
+        time.sleep(0.05)
+
+    if inactive_users:
+        connect_users = sqlite3.connect('users.db')
+        cursor_users = connect_users.cursor()
+        cursor_users.executemany(
+            "DELETE FROM users_info WHERE user_id = ?",
+            [(user_id,) for user_id in inactive_users]
+        )
+        connect_users.commit()
+        connect_users.close()
+
+    bot.send_message(
+        message.chat.id,
+        f'Подсчёт завершён!\n\n'
+        f'Всего пользователей: {total_users}\n'
+        f'Активных пользователей: {active_count}\n'
+        f'Удалено неактивных: {len(inactive_users)}\n/home'
+    )
 
 @bot.message_handler(commands=['home'])
 @analytics
@@ -235,17 +306,19 @@ def start(message):
 def choose_command(message):
     keyboard = types.InlineKeyboardMarkup()
     command1_button = types.InlineKeyboardButton(text="Отправить сообщение в бот", callback_data="command1")
+    command2_button = types.InlineKeyboardButton(text="Посчитать активных пользователей", callback_data="command2")
 
     keyboard.add(command1_button)
+    keyboard.add(command2_button)
 
-    bot.send_message(message.chat.id, "Выберите команду:\n"
-                                      "\n"
-                                      "Для возврата нажмите /home", reply_markup=keyboard)
+    bot.send_message(message.chat.id, "Выберите команду:\n\nДля возврата нажмите /home", reply_markup=keyboard)
 
 @bot.callback_query_handler(func=lambda call: True)
 def callback_handler(call):
     if call.data == "command1":
         send(call.message)
+    elif call.data == "command2":
+        count_active_users(call.message)
 
 @bot.message_handler(commands=['back'])
 @analytics
@@ -1101,6 +1174,7 @@ def get_user_text(message):
                                          'Если у Вас возникли вопросы, ответы на которые Вы не нашли в этом боте, обратитесь в Отдел обучения и развития\n'
                                          '\n'
                                          'Для продолжения работы переключите клавиатуру на кнопки и выберите один из разделов ниже:')
+
 
 
 bot.infinity_polling()
