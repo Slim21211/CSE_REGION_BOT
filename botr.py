@@ -284,6 +284,7 @@ def start(message):
     mistakes = types.KeyboardButton('Обучение по ошибкам')
     labor_protection = types.KeyboardButton('Охрана труда')
     parking = types.KeyboardButton('Правила парковки')
+    binding = types.KeyboardButton('Привязка грузовых мест при сборе. Сдача в ячейку')
     search = types.KeyboardButton('🔍 Поиск')
     admin = types.KeyboardButton("Функции для администраторов")
     markup.row(interns, study)
@@ -297,6 +298,7 @@ def start(message):
     markup.row(restor, stops)
     markup.row(dispatch, mistakes)
     markup.row(parking, labor_protection)
+    markup.row(binding)
     markup.row(search)
     if message.from_user.id in admin_ids:
         markup.add(admin)
@@ -811,6 +813,7 @@ def get_user_text(message):
         chapter13 = types.KeyboardButton('Тест ВСД / ВПД')
         chapter14 = types.KeyboardButton('Тест Акт осмотра вложимого')
         chapter15 = types.KeyboardButton('Тест Просвещение')
+        chapter16 = types.KeyboardButton('Тест Привязка грузовых мест')
         markup.add(
             chapter4,
             chapter6,
@@ -818,7 +821,8 @@ def get_user_text(message):
             chapter9,
             chapter13,
             chapter14,
-            chapter15
+            chapter15,
+            chapter16
         )
         bot.send_message(message.chat.id, 'Для возврата нажмите /home', parse_mode='html', reply_markup=markup)
 
@@ -854,14 +858,22 @@ def get_user_text(message):
                          reply_markup=markup)
         bot.send_message(message.chat.id, 'Для возврата в меню нажмите /home')
 
+    elif message.text == 'Тест Привязка грузовых мест':
+        markup = types.InlineKeyboardMarkup()
+        markup.add(types.InlineKeyboardButton('Тест Привязка грузовых мест', url='https://short.startexam.com/XzTylbnc'))
+        bot.send_message(message.chat.id, 'Перейдите по ссылке, чтобы пройти тестирование:', parse_mode='html',
+                         reply_markup=markup)
+        bot.send_message(message.chat.id, 'Для возврата в меню нажмите /home')
+
     elif message.text == 'ВСД / ВПД / Просвещение':
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
         chapter1 = types.KeyboardButton('Памятка по заполнению ВСД клиентов JTI, Нестле')
         chapter2 = types.KeyboardButton('Презентация ВСД / ВПД')
         chapter3 = types.KeyboardButton('Тест ВСД / ВПД')
-        chapter4 = types.KeyboardButton('Презентация Просвещение')
-        chapter5 = types.KeyboardButton('Тест Просвещение')
-        markup.add(chapter1, chapter2, chapter4, chapter3, chapter5)
+        chapter4 = types.KeyboardButton('Просвещение (текст)')
+        chapter5 = types.KeyboardButton('Просвещение (видео)')
+        chapter6 = types.KeyboardButton('Тест Просвещение')
+        markup.add(chapter1, chapter2, chapter3, chapter4, chapter5, chapter6)
         bot.send_message(message.chat.id, 'Для возврата нажмите /home', parse_mode='html', reply_markup=markup)
 
     elif message.text == 'Памятка по заполнению ВСД клиентов JTI, Нестле':
@@ -874,10 +886,14 @@ def get_user_text(message):
                                    'Ознакомьтесь с презентацией ВСД / ВПД:',
                                    'Documents/VSD_presentation.pdf')
 
-    elif message.text == 'Презентация Просвещение':
+    elif message.text == 'Просвещение (текст)':
         send_document_with_message(bot, message.chat.id,
-                                   'Ознакомьтесь с презентацией Просвещение:',
-                                   'Documents/Просвещение.pdf')
+                                   'Ознакомьтесь с презентацией:',
+                                   'Documents/Просвещение текст.pdf')
+
+    elif message.text == 'Просвещение (видео)':
+        send_video_link(bot, message.chat.id, 'Просвещение (видео)',
+                        'https://drive.google.com/file/d/1xwI9PlqM-YebjaMjOBKdyu3CzsFeh2sm/view?usp=sharing')
 
     elif message.text == 'МФК ДЖАМИЛЬКО МОН':
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
@@ -1119,6 +1135,25 @@ def get_user_text(message):
     elif message.text == 'Видео «Паркоматика»':
         send_video_link(bot, message.chat.id, 'Видео «Паркоматика»',
                         'https://clck.ru/3Kuu4v')
+
+    elif message.text == 'Привязка грузовых мест при сборе. Сдача в ячейку':
+        markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
+        chapter1 = types.KeyboardButton('Инструкция привязка грузовых мест')
+        chapter2 = types.KeyboardButton('Видео привязка грузовых мест')
+        chapter3 = types.KeyboardButton('Тест Привязка грузовых мест')
+        markup.row(chapter1)
+        markup.row(chapter2)
+        markup.row(chapter3)
+        bot.send_message(message.chat.id, 'Для возврата нажмите /home', parse_mode='html', reply_markup=markup)
+
+    elif message.text == 'Инструкция привязка грузовых мест':
+        send_document_with_message(bot, message.chat.id,
+                                   'Инструкция привязка грузовых мест:',
+                                   'Documents/binding_instruction.pdf')
+
+    elif message.text == 'Видео привязка грузовых мест':
+        send_video_link(bot, message.chat.id, 'Видео привязка грузовых мест',
+                        'https://drive.google.com/file/d/1QA_4wjGl-bFjQGS059LqKe9esgjdfWY2/view?usp=sharing')
 
     elif message.text == 'Программа "Лучший сотрудник"':
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
