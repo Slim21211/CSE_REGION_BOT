@@ -1,13 +1,18 @@
-import telebot
 import sqlite3
 from decouple import config
-from datetime import datetime
 import time
+import datetime
+from telebot.apihelper import ApiTelegramException
+import json
 
 from telebot import types
+from webhook_app import bot
+
+import os
+
+os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
 telegram_bot_token = config('TELEGRAM_BOT_TOKEN')
-bot = telebot.TeleBot(telegram_bot_token, parse_mode='html')
 admin_ids = [349682954, 223737494]
 pending_message = {}
 
@@ -22,6 +27,21 @@ cursor_users.execute('''CREATE TABLE IF NOT EXISTS users_info(
     surname TEXT,
     city TEXT
 )''')
+
+# Создаем таблицу для очереди рассылки
+cursor_users.execute('''
+    CREATE TABLE IF NOT EXISTS broadcast_queue (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        admin_id INTEGER,
+        content TEXT,
+        status TEXT DEFAULT 'pending',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        total_users INTEGER DEFAULT 0,
+        sent_count INTEGER DEFAULT 0,
+        failed_count INTEGER DEFAULT 0,
+        blocked_count INTEGER DEFAULT 0
+    )
+''')
 
 # Фиксируем изменения в базе данных
 connect_users.commit()
@@ -108,7 +128,7 @@ def analytics(func: callable):
 
         try:
             # Создаем новый объект cursor для выполнения SQL-запросов
-            message_date = datetime.fromtimestamp(message.date)
+            message_date = datetime.datetime.fromtimestamp(message.date)
             message_date_formatted = message_date.strftime("%H:%M:%S %d.%m.%Y")
             connect_message = sqlite3.connect('message.db')
             cursor_message = connect_message.cursor()
@@ -136,6 +156,7 @@ def analytics(func: callable):
 
     return analytics_wrapper
 
+
 @bot.message_handler(commands=['send'])
 @analytics
 def send(message):
@@ -148,12 +169,10 @@ def send(message):
 
 def confirm_message_step(message):
     if message.photo:
-        # Если админ отправил фото с подписью
         file_id = message.photo[-1].file_id
         caption = message.caption or ''
         pending_message[message.chat.id] = {'type': 'photo', 'file_id': file_id, 'caption': caption}
     else:
-        # Текстовое сообщение
         text = message.text
         pending_message[message.chat.id] = {'type': 'text', 'text': text}
 
@@ -171,26 +190,127 @@ def confirm_send(message):
         bot.send_message(message.chat.id, 'Отсутствует сообщение для рассылки.')
         return
 
-    bot.send_message(message.chat.id, 'Рассылка начата. Это может занять некоторое время.')
-    user_ids_to_send = set()
+    conn = sqlite3.connect('users.db')
+    cursor = conn.cursor()
+    cursor.execute('SELECT COUNT(*) FROM users_info')
+    total_users = cursor.fetchone()[0]
 
-    connect_users = sqlite3.connect('users.db')
-    cursor_users = connect_users.cursor()
-    cursor_users.execute("SELECT user_id FROM users_info")
-    for row in cursor_users.fetchall():
-        user_ids_to_send.add(row[0])
-    connect_users.close()
+    cursor.execute('''
+        INSERT INTO broadcast_queue (admin_id, content, total_users)
+        VALUES (?, ?, ?)
+    ''', (message.chat.id, json.dumps(content), total_users))
+    broadcast_id = cursor.lastrowid
+    conn.commit()
+    conn.close()
 
-    for user_id in user_ids_to_send:
+    bot.send_message(message.chat.id, f'Рассылка запущена для {total_users} пользователей.')
+
+    # Запускаем рассылку
+    run_broadcast(broadcast_id)
+
+
+def run_broadcast(broadcast_id):
+    conn = sqlite3.connect('users.db')
+    cursor = conn.cursor()
+
+    # Получаем данные рассылки
+    cursor.execute('SELECT admin_id, content FROM broadcast_queue WHERE id = ?', (broadcast_id,))
+    row = cursor.fetchone()
+    if not row:
+        conn.close()
+        return
+
+    admin_id, content_json = row
+    content = json.loads(content_json)
+
+    # Обновляем статус
+    cursor.execute('UPDATE broadcast_queue SET status = "processing" WHERE id = ?', (broadcast_id,))
+    conn.commit()
+
+    # Получаем пользователей
+    cursor.execute('SELECT user_id FROM users_info')
+    user_ids = [row[0] for row in cursor.fetchall()]
+    conn.close()
+
+    success = 0
+    failed = 0
+    blocked = 0
+
+    # Отправляем сообщение о начале
+    progress_msg = bot.send_message(admin_id, f"Начинаю рассылку для {len(user_ids)} пользователей...")
+
+    for i, user_id in enumerate(user_ids, 1):
         try:
             if content['type'] == 'text':
                 bot.send_message(user_id, content['text'])
             elif content['type'] == 'photo':
                 bot.send_photo(user_id, content['file_id'], caption=content['caption'])
-        except Exception as e:
-            print(f"Ошибка при отправке пользователю {user_id}: {e}")
+            success += 1
 
-    bot.send_message(message.chat.id, 'Рассылка завершена.')
+        except ApiTelegramException as e:
+            if 'bot was blocked by the user' in str(e):
+                blocked += 1
+                # Удаляем заблокировавшего пользователя
+                conn = sqlite3.connect('users.db')
+                cur = conn.cursor()
+                cur.execute("DELETE FROM users_info WHERE user_id = ?", (user_id,))
+                conn.commit()
+                conn.close()
+            failed += 1
+
+        except Exception as e:
+            failed += 1
+
+        # Обновляем прогресс каждые 50 пользователей
+        if i % 50 == 0:
+            try:
+                bot.edit_message_text(
+                    f"Отправлено {i}/{len(user_ids)} ({(i / len(user_ids) * 100):.1f}%)\n"
+                    f"Успешно: {success}\nОшибок: {failed}\nЗаблокировали: {blocked}",
+                    admin_id, progress_msg.message_id
+                )
+            except:
+                pass
+
+            # Обновляем в базе
+            conn = sqlite3.connect('users.db')
+            cursor = conn.cursor()
+            cursor.execute('''
+                UPDATE broadcast_queue 
+                SET sent_count = ?, failed_count = ?, blocked_count = ?
+                WHERE id = ?
+            ''', (success, failed, blocked, broadcast_id))
+            conn.commit()
+            conn.close()
+
+        # Задержка для избежания rate limit
+        time.sleep(0.05)  # 50ms между сообщениями
+
+    # Завершаем рассылку
+    conn = sqlite3.connect('users.db')
+    cursor = conn.cursor()
+    cursor.execute('''
+        UPDATE broadcast_queue 
+        SET status = "completed", sent_count = ?, failed_count = ?, blocked_count = ?
+        WHERE id = ?
+    ''', (success, failed, blocked, broadcast_id))
+    conn.commit()
+    conn.close()
+
+    # Удаляем прогресс и отправляем итоги
+    try:
+        bot.delete_message(admin_id, progress_msg.message_id)
+    except:
+        pass
+
+    bot.send_message(admin_id,
+                     f'✅ Рассылка завершена.\n\n'
+                     f'Всего пользователей: {len(user_ids)}\n'
+                     f'Успешно: {success}\n'
+                     f'Ошибок: {failed}\n'
+                     f'Заблокировали бота: {blocked}\n'
+                     f'/home'
+                     )
 
 
 @bot.message_handler(commands=['cancel_send'])
@@ -202,59 +322,97 @@ def cancel_send(message):
     else:
         bot.send_message(message.chat.id, 'Вы не можете отменить рассылку в этом боте.')
 
+
+@bot.message_handler(commands=['broadcast_status'])
+@analytics
+def broadcast_status(message):
+    if message.chat.id not in admin_ids:
+        return
+
+    conn = sqlite3.connect('users.db')
+    cursor = conn.cursor()
+    cursor.execute('''
+        SELECT status, total_users, sent_count, failed_count, blocked_count 
+        FROM broadcast_queue 
+        ORDER BY created_at DESC 
+        LIMIT 1
+    ''')
+    row = cursor.fetchone()
+    conn.close()
+
+    if not row:
+        bot.send_message(message.chat.id, 'Нет данных о рассылках.')
+        return
+
+    status, total, sent, failed, blocked = row
+
+    if status == 'processing':
+        bot.send_message(message.chat.id,
+                         f'🔄 Рассылка в процессе:\n'
+                         f'Отправлено: {sent}/{total}\n'
+                         f'Ошибок: {failed}\n'
+                         f'Заблокировали: {blocked}'
+                         )
+    elif status == 'completed':
+        bot.send_message(message.chat.id,
+                         f'✅ Последняя рассылка завершена:\n'
+                         f'Всего: {total}\n'
+                         f'Успешно: {sent}\n'
+                         f'Ошибок: {failed}\n'
+                         f'Заблокировали: {blocked}'
+                         )
+    else:
+        bot.send_message(message.chat.id, f'Статус рассылки: {status}')
 def count_active_users(message):
     bot.send_message(message.chat.id, 'Подсчёт активных пользователей начат. Пожалуйста, подождите...')
 
-    connect_users = sqlite3.connect('users.db')
-    cursor_users = connect_users.cursor()
-    cursor_users.execute("SELECT user_id FROM users_info")
-    user_ids = [row[0] for row in cursor_users.fetchall()]
-    connect_users.close()
+    conn = sqlite3.connect('users.db')
+    cursor = conn.cursor()
+    cursor.execute("SELECT user_id FROM users_info")
+    user_ids = [row[0] for row in cursor.fetchall()]
+    conn.close()
 
-    active_count = 0
     total_users = len(user_ids)
-    checked_users = 0
-
+    active_count = 0
     inactive_users = []
 
-    progress_message = bot.send_message(message.chat.id, f"Проверено 0 из {total_users} пользователей...")
+    progress_msg = bot.send_message(message.chat.id, f"Проверено 0 из {total_users} пользователей...")
 
-    for user_id in user_ids:
+    for i, user_id in enumerate(user_ids, start=1):
         try:
             bot.send_chat_action(user_id, 'typing')
             active_count += 1
-        except:
-            inactive_users.append(user_id)  # Добавляем в список неактивных
+        except ApiTelegramException:
+            inactive_users.append(user_id)
+        except Exception:
+            inactive_users.append(user_id)
 
-        checked_users += 1
-
-        if checked_users % 50 == 0 or checked_users == total_users:
+        # Обновляем прогресс каждые 50
+        if i % 50 == 0 or i == total_users:
             try:
                 bot.edit_message_text(
-                    chat_id=progress_message.chat.id,
-                    message_id=progress_message.message_id,
-                    text=f"Проверено {checked_users} из {total_users} пользователей..."
+                    chat_id=progress_msg.chat.id,
+                    message_id=progress_msg.message_id,
+                    text=f"Проверено {i} из {total_users} пользователей..."
                 )
             except:
                 pass
 
-        time.sleep(0.05)
+        time.sleep(0.03)  # Короткий таймаут, чтобы избежать Rate Limit
 
+    # Удаляем неактивных
     if inactive_users:
-        connect_users = sqlite3.connect('users.db')
-        cursor_users = connect_users.cursor()
-        cursor_users.executemany(
-            "DELETE FROM users_info WHERE user_id = ?",
-            [(user_id,) for user_id in inactive_users]
-        )
-        connect_users.commit()
-        connect_users.close()
+        conn = sqlite3.connect('users.db')
+        cursor = conn.cursor()
+        cursor.executemany("DELETE FROM users_info WHERE user_id = ?", [(uid,) for uid in inactive_users])
+        conn.commit()
+        conn.close()
 
     bot.send_message(
         message.chat.id,
         f'Подсчёт завершён!\n\n'
         f'Всего пользователей: {total_users}\n'
-        f'Активных пользователей: {active_count}\n'
+        f'Активных: {active_count}\n'
         f'Удалено неактивных: {len(inactive_users)}\n/home'
     )
 
@@ -273,11 +431,10 @@ def start(message):
     self_collection = types.KeyboardButton('Самоинкассация')
     vsd = types.KeyboardButton("ВСД / ВПД / Просвещение")
     casarte = types.KeyboardButton("Casarte")
-    jamilco = types.KeyboardButton("МФК ДЖАМИЛЬКО МОН")
+    jamilco = types.KeyboardButton("Джамилько")
     best = types.KeyboardButton('Программа "Лучший сотрудник"')
     temperature = types.KeyboardButton("Температурные грузы")
-    high_education = types.KeyboardButton("Продвинутое обучение")
-    damage_fix = types.KeyboardButton("Акт осмотра вложимого")
+    damage_fix = types.KeyboardButton("Акт осмотра/Акт несоответствия")
     restor = types.KeyboardButton("РЕСТОР")
     stops = types.KeyboardButton('СТОПы')
     dispatch = types.KeyboardButton('Диспетчер')
@@ -285,7 +442,9 @@ def start(message):
     labor_protection = types.KeyboardButton('Охрана труда')
     parking = types.KeyboardButton('Правила парковки')
     binding = types.KeyboardButton('Привязка грузовых мест при сборе. Сдача в ячейку')
-    search = types.KeyboardButton('🔍 Поиск')
+    avito = types.KeyboardButton('ПВЗ Авито')
+    updateApp = types.KeyboardButton('Обновление МПК')
+    wb = types.KeyboardButton('Доставка WB')
     admin = types.KeyboardButton("Функции для администраторов")
     markup.row(interns, study)
     markup.row(cargo, post_office)
@@ -294,12 +453,12 @@ def start(message):
     markup.row(quiz, casarte)
     markup.row(new_traces, jamilco)
     markup.row(temperature, best)
-    markup.row(high_education, damage_fix)
-    markup.row(restor, stops)
-    markup.row(dispatch, mistakes)
-    markup.row(parking, labor_protection)
-    markup.row(binding)
-    markup.row(search)
+    markup.row(damage_fix, restor)
+    markup.row(dispatch, stops)
+    markup.row(parking, mistakes)
+    markup.row(avito, labor_protection)
+    markup.row(wb)
+    markup.row(binding, updateApp)
     if message.from_user.id in admin_ids:
         markup.add(admin)
     bot.send_message(message.chat.id,'Выберите раздел:', parse_mode='html', reply_markup=markup)
@@ -808,12 +967,15 @@ def get_user_text(message):
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
         chapter4 = types.KeyboardButton('Тест по базовому обучению')
         chapter6 = types.KeyboardButton('Тест Почтоматы и ПВЗ')
-        chapter7 = types.KeyboardButton('Тест МФК ДЖАМИЛЬКО МОН')
+        chapter7 = types.KeyboardButton('Тест Джамилько')
         chapter9 = types.KeyboardButton('Тест Температурные грузы')
         chapter13 = types.KeyboardButton('Тест ВСД / ВПД')
-        chapter14 = types.KeyboardButton('Тест Акт осмотра вложимого')
+        chapter14 = types.KeyboardButton('Тест Акт осмотра/Акт несоответствия')
         chapter15 = types.KeyboardButton('Тест Просвещение')
         chapter16 = types.KeyboardButton('Тест Привязка грузовых мест')
+        chapter17 = types.KeyboardButton('Тест Авито для диспетчера')
+        chapter18 = types.KeyboardButton('Тест Авито для К/В/Э')
+        chapter19 = types.KeyboardButton('Тест по МПК')
         markup.add(
             chapter4,
             chapter6,
@@ -822,7 +984,10 @@ def get_user_text(message):
             chapter13,
             chapter14,
             chapter15,
-            chapter16
+            chapter16,
+            chapter17,
+            chapter18,
+            chapter19,
         )
         bot.send_message(message.chat.id, 'Для возврата нажмите /home', parse_mode='html', reply_markup=markup)
 
@@ -832,9 +997,9 @@ def get_user_text(message):
         bot.send_message(message.chat.id, 'Перейдите по ссылке, чтобы пройти тестирование:', parse_mode='html', reply_markup=markup)
         bot.send_message(message.chat.id, 'Для возврата в меню нажмите /home')
 
-    elif message.text == 'Тест МФК ДЖАМИЛЬКО МОН':
+    elif message.text == 'Тест Джамилько':
         markup = types.InlineKeyboardMarkup()
-        markup.add(types.InlineKeyboardButton('Тест МФК ДЖАМИЛЬКО МОН', url='https://short.startexam.com/secVT8QM'))
+        markup.add(types.InlineKeyboardButton('Тест Джамилько', url='https://short.startexam.com/secVT8QM'))
         bot.send_message(message.chat.id, 'Перейдите по ссылке, чтобы пройти тестирование:', parse_mode='html', reply_markup=markup)
         bot.send_message(message.chat.id, 'Для возврата в меню нажмите /home')
 
@@ -861,6 +1026,27 @@ def get_user_text(message):
     elif message.text == 'Тест Привязка грузовых мест':
         markup = types.InlineKeyboardMarkup()
         markup.add(types.InlineKeyboardButton('Тест Привязка грузовых мест', url='https://short.startexam.com/XzTylbnc'))
+        bot.send_message(message.chat.id, 'Перейдите по ссылке, чтобы пройти тестирование:', parse_mode='html',
+                         reply_markup=markup)
+        bot.send_message(message.chat.id, 'Для возврата в меню нажмите /home')
+
+    elif message.text == 'Тест Авито для диспетчера':
+        markup = types.InlineKeyboardMarkup()
+        markup.add(types.InlineKeyboardButton('Тест Авито для диспетчера', url='https://short.startexam.com/cVdg5zt2'))
+        bot.send_message(message.chat.id, 'Перейдите по ссылке, чтобы пройти тестирование:', parse_mode='html',
+                         reply_markup=markup)
+        bot.send_message(message.chat.id, 'Для возврата в меню нажмите /home')
+
+    elif message.text == 'Тест Авито для К/В/Э':
+        markup = types.InlineKeyboardMarkup()
+        markup.add(types.InlineKeyboardButton('Тест Авито для К/В/Э', url='https://short.startexam.com/yDSp-xOX'))
+        bot.send_message(message.chat.id, 'Перейдите по ссылке, чтобы пройти тестирование:', parse_mode='html',
+                         reply_markup=markup)
+        bot.send_message(message.chat.id, 'Для возврата в меню нажмите /home')
+
+    elif message.text == 'Тест по МПК':
+        markup = types.InlineKeyboardMarkup()
+        markup.add(types.InlineKeyboardButton('Тест по МПК', url='https://short.startexam.com/6y2pPKPj'))
         bot.send_message(message.chat.id, 'Перейдите по ссылке, чтобы пройти тестирование:', parse_mode='html',
                          reply_markup=markup)
         bot.send_message(message.chat.id, 'Для возврата в меню нажмите /home')
@@ -895,17 +1081,22 @@ def get_user_text(message):
         send_video_link(bot, message.chat.id, 'Просвещение (видео)',
                         'https://drive.google.com/file/d/1xwI9PlqM-YebjaMjOBKdyu3CzsFeh2sm/view?usp=sharing')
 
-    elif message.text == 'МФК ДЖАМИЛЬКО МОН':
+    elif message.text == 'Джамилько':
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
-        chapter1 = types.KeyboardButton('Презентация МФК ДЖАМИЛЬКО МОН')
-        chapter2 = types.KeyboardButton('Тест МФК ДЖАМИЛЬКО МОН')
-        markup.add(chapter1, chapter2)
+        chapter1 = types.KeyboardButton('Презентация Джамилько')
+        chapter2 = types.KeyboardButton('Тест Джамилько')
+        chapter3 = types.KeyboardButton('Видео Джамилько')
+        markup.add(chapter1, chapter3, chapter2)
         bot.send_message(message.chat.id, 'Для возврата нажмите /home', parse_mode='html', reply_markup=markup)
 
-    elif message.text == 'Презентация МФК ДЖАМИЛЬКО МОН':
+    elif message.text == 'Презентация Джамилько':
         send_document_with_message(bot, message.chat.id,
-                                   'Ознакомьтесь с презентацией МФК ДЖАМИЛЬКО МОН:',
+                                   'Ознакомьтесь с презентацией Джамилько:',
                                    'Documents/jamilco_presentation.pdf')
+
+    elif message.text == 'Видео Джамилько':
+        send_video_link(bot, message.chat.id, 'Джамилько',
+                        'https://drive.google.com/file/d/1lG3ykpqKgnjaM53ShjYHT20fQacuQm7N/view?usp=drive_link')
 
     elif message.text == 'Температурные грузы':
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
@@ -961,42 +1152,27 @@ def get_user_text(message):
         send_video_link(bot, message.chat.id, 'Температурные грузы',
                         'https://drive.google.com/file/d/1GEdgGAA9cK9FKqJzeGCta0CvmIPirtvT/view?usp=drive_link')
 
-    elif message.text == 'Тест Акт осмотра вложимого':
+    elif message.text == 'Тест Акт осмотра/Акт несоответствия':
         markup = types.InlineKeyboardMarkup()
-        markup.add(types.InlineKeyboardButton('Тест Акт осмотра вложимого', url='https://short.startexam.com/KZNee4D8'))
+        markup.add(types.InlineKeyboardButton('Тест Акт осмотра/Акт несоответствия', url='https://short.startexam.com/KZNee4D8'))
         bot.send_message(message.chat.id, 'Перейдите по ссылке, чтобы пройти тестирование:', parse_mode='html', reply_markup=markup)
         bot.send_message(message.chat.id, 'Для возврата в меню нажмите /home')
 
-    elif message.text == 'Акт осмотра вложимого':
+    elif message.text == 'Акт осмотра/Акт несоответствия':
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
-        chapter1 = types.KeyboardButton('Презентация Акт осмотра вложимого')
-        chapter2 = types.KeyboardButton('Тест Акт осмотра вложимого')
-        chapter3 = types.KeyboardButton('Инструкции Акт осмотра вложимого')
+        chapter1 = types.KeyboardButton('Обучение Акт осмотра/Акт несоответствия')
+        chapter2 = types.KeyboardButton('Тест Акт осмотра/Акт несоответствия')
+        chapter3 = types.KeyboardButton('Форма Акт осмотра/Акт несоответствия')
         markup.add(chapter1, chapter3, chapter2)
         bot.send_message(message.chat.id, 'Для возврата нажмите /home', parse_mode='html', reply_markup=markup)
 
-    elif message.text == 'Презентация Акт осмотра вложимого':
+    elif message.text == 'Обучение Акт осмотра/Акт несоответствия':
         send_document_with_message(bot, message.chat.id,
                                    'Ознакомьтесь с презентацией:',
                                    'Documents/inspection_act_presentation.pdf')
 
-    elif message.text == 'Инструкции Акт осмотра вложимого':
-        send_document_with_message(bot, message.chat.id,
-                                   'Ознакомьтесь с инструкциями:',
-                                   'Documents/inspection_act_regulation.pdf', False, True)
-        send_document_with_message(bot, message.chat.id,
-                                   '',
-                                   'Documents/inspection_act_instruction.pdf', False, False)
-        send_document_with_message(bot, message.chat.id,
-                                   '',
-                                   'Documents/inspection_act_rules.pdf', True, False)
-
-    elif message.text == 'Продвинутое обучение':
-        send_video_link(bot, message.chat.id, 'Джамилько',
-                        'https://drive.google.com/file/d/1lG3ykpqKgnjaM53ShjYHT20fQacuQm7N/view?usp=drive_link',
-                        final_text=False)
-        send_video_link(bot, message.chat.id, 'Температурные грузы',
-                        'https://drive.google.com/file/d/1GEdgGAA9cK9FKqJzeGCta0CvmIPirtvT/view?usp=drive_link')
+    elif message.text == 'Форма Акт осмотра/Акт несоответствия':
+        send_document_with_message(bot, message.chat.id, 'Ознакомьтесь с инструкциями:', 'Documents/inspection_act_regulation.pdf')
 
     elif message.text == 'РЕСТОР':
         send_document_with_message(bot, message.chat.id,
@@ -1153,7 +1329,76 @@ def get_user_text(message):
 
     elif message.text == 'Видео привязка грузовых мест':
         send_video_link(bot, message.chat.id, 'Видео привязка грузовых мест',
-                        'https://drive.google.com/file/d/1QA_4wjGl-bFjQGS059LqKe9esgjdfWY2/view?usp=sharing')
+                        'https://clck.ru/3MHPAU')
+
+    # раздел Обновление МПК
+    elif message.text == 'Обновление МПК':
+        markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
+        chapter1 = types.KeyboardButton('Инструкция Обновление МПК')
+        chapter2 = types.KeyboardButton('Видео Обновление МПК')
+        chapter3 = types.KeyboardButton('Тест по МПК')
+        markup.row(chapter1)
+        markup.row(chapter2)
+        markup.row(chapter3)
+        bot.send_message(message.chat.id, 'Для возврата нажмите /home', parse_mode='html', reply_markup=markup)
+
+    elif message.text == 'Инструкция Обновление МПК':
+        send_document_with_message(bot, message.chat.id,
+                                   'Инструкция Обновление МПК:',
+                                   'Documents/updateApp.pdf')
+
+    elif message.text == 'Видео Обновление МПК':
+        send_video_link(bot, message.chat.id, 'Видео Обновление МПК',
+                        'https://clck.ru/3N2mJ2')
+
+    elif message.text == 'ПВЗ Авито':
+        markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
+        chapter1 = types.KeyboardButton('Авито для диспетчера (инструкция)')
+        chapter2 = types.KeyboardButton('Авито для диспетчера (видео)')
+        chapter3 = types.KeyboardButton('Тест Авито для диспетчера')
+        chapter4 = types.KeyboardButton('Авито для К/В/Э (инструкция)')
+        chapter5 = types.KeyboardButton('Авито для К/В/Э (видео)')
+        chapter6 = types.KeyboardButton('Тест Авито для К/В/Э')
+        markup.row(chapter1, chapter2)
+        markup.row(chapter3, chapter4)
+        markup.row(chapter5, chapter6)
+        bot.send_message(message.chat.id, 'Для возврата нажмите /home', parse_mode='html', reply_markup=markup)
+
+    elif message.text == 'Авито для диспетчера (инструкция)':
+        send_document_with_message(bot, message.chat.id,
+                                   'Авито для диспетчера (инструкция):',
+                                   'Documents/avito_dispatcher_instruction.pdf')
+
+    elif message.text == 'Авито для диспетчера (видео)':
+        send_video_link(bot, message.chat.id, 'Видео Авито для диспетчера',
+                        'https://clck.ru/3MUfYC')
+
+    elif message.text == 'Авито для К/В/Э (инструкция)':
+        send_document_with_message(bot, message.chat.id,
+                                   'Авито для К/В/Э (инструкция):',
+                                   'Documents/avito_courier_instruction.pdf')
+
+    elif message.text == 'Авито для К/В/Э (видео)':
+        send_video_link(bot, message.chat.id, 'Видео Авито для К/В/Э',
+                        'https://clck.ru/3MUfpA')
+
+    # раздел Доставка WB
+    elif message.text == 'Доставка WB':
+        markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
+        chapter1 = types.KeyboardButton('Доставка WB памятка')
+        chapter2 = types.KeyboardButton('Доставка WB видео')
+        markup.row(chapter1)
+        markup.row(chapter2)
+        bot.send_message(message.chat.id, 'Для возврата нажмите /home', parse_mode='html', reply_markup=markup)
+
+    elif message.text == 'Доставка WB памятка':
+        send_document_with_message(bot, message.chat.id,
+                                   'Доставка WB памятка:',
+                                   'Documents/wb_reminder.pdf')
+
+    elif message.text == 'Доставка WB видео':
+        send_video_link(bot, message.chat.id, 'Доставка WB видео',
+                        'https://clck.ru/3NrmW3')
 
     elif message.text == 'Программа "Лучший сотрудник"':
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
@@ -1197,20 +1442,9 @@ def get_user_text(message):
                                    'Лучшие сотрудники Департамента регионального развития 4-й квартал:',
                                    'Documents/best_emp_region_4 ch_2024.pdf')
 
-    elif message.text == '🔍 Поиск':
-        bot.send_message(349682954, f'Пользователь {message.from_user.first_name} {message.from_user.last_name} нажал кнопку Поиск')
-        bot.send_message(message.chat.id, 'Данный раздел в разработке 🛠\n'
-                                          '\n'
-                                          'Для возврата в начало нажмите /home', parse_mode='html')
-
     else:
         bot.send_message(message.chat.id,'Для возврата в начало нажмите /home\n'
                                          '\n'
                                          'Если у Вас возникли вопросы, ответы на которые Вы не нашли в этом боте, обратитесь в Отдел обучения и развития\n'
                                          '\n'
                                          'Для продолжения работы переключите клавиатуру на кнопки и выберите один из разделов ниже:')
-
-
-
-bot.infinity_polling()
-
