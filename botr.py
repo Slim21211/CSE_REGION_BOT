@@ -976,6 +976,7 @@ def get_user_text(message):
         chapter17 = types.KeyboardButton('Тест Авито для диспетчера')
         chapter18 = types.KeyboardButton('Тест Авито для К/В/Э')
         chapter19 = types.KeyboardButton('Тест по МПК')
+        chapter20 = types.KeyboardButton('Тест Доставка WB')
         markup.add(
             chapter4,
             chapter6,
@@ -988,6 +989,7 @@ def get_user_text(message):
             chapter17,
             chapter18,
             chapter19,
+            chapter20,
         )
         bot.send_message(message.chat.id, 'Для возврата нажмите /home', parse_mode='html', reply_markup=markup)
 
@@ -1047,6 +1049,13 @@ def get_user_text(message):
     elif message.text == 'Тест по МПК':
         markup = types.InlineKeyboardMarkup()
         markup.add(types.InlineKeyboardButton('Тест по МПК', url='https://short.startexam.com/6y2pPKPj'))
+        bot.send_message(message.chat.id, 'Перейдите по ссылке, чтобы пройти тестирование:', parse_mode='html',
+                         reply_markup=markup)
+        bot.send_message(message.chat.id, 'Для возврата в меню нажмите /home')
+
+    elif message.text == 'Тест Доставка WB':
+        markup = types.InlineKeyboardMarkup()
+        markup.add(types.InlineKeyboardButton('Тест Доставка WB', url='https://short.startexam.com/_3YcfcWV'))
         bot.send_message(message.chat.id, 'Перейдите по ссылке, чтобы пройти тестирование:', parse_mode='html',
                          reply_markup=markup)
         bot.send_message(message.chat.id, 'Для возврата в меню нажмите /home')
@@ -1387,8 +1396,10 @@ def get_user_text(message):
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
         chapter1 = types.KeyboardButton('Доставка WB памятка')
         chapter2 = types.KeyboardButton('Доставка WB видео')
+        chapter3 = types.KeyboardButton('Тест Доставка WB')
         markup.row(chapter1)
         markup.row(chapter2)
+        markup.row(chapter3)
         bot.send_message(message.chat.id, 'Для возврата нажмите /home', parse_mode='html', reply_markup=markup)
 
     elif message.text == 'Доставка WB памятка':
