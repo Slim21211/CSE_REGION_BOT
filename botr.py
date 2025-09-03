@@ -1413,45 +1413,29 @@ def get_user_text(message):
 
     elif message.text == 'Программа "Лучший сотрудник"':
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
-        chapter5 = types.KeyboardButton('1-й квартал 2024')
-        chapter6 = types.KeyboardButton('2-й квартал 2024')
-        chapter7 = types.KeyboardButton('3-й квартал 2024')
-        chapter8 = types.KeyboardButton('4-й квартал 2024')
-        markup.add(chapter5, chapter6, chapter7, chapter8)
+        chapter1 = types.KeyboardButton('1-е полугодие 2025')
+        markup.add(chapter1)
         bot.send_message(message.chat.id, 'Для возврата нажмите /home', parse_mode='html', reply_markup=markup)
 
-    elif message.text == '1-й квартал 2024':
-        send_document_with_message(bot, message.chat.id,
-                                   'Лучшие сотрудники 1-й квартал 2024:',
-                                   'Documents/best_emp_all_1 ch_2024.pdf')
-    elif message.text == '2-й квартал 2024':
-        send_document_with_message(bot, message.chat.id,
-                                   'Лучшие сотрудники 2-й квартал 2024:',
-                                   'Documents/best_emp_all_2 ch_2024.pdf')
-    elif message.text == '3-й квартал 2024':
-        send_document_with_message(bot, message.chat.id,
-                                   'Лучшие сотрудники 3-й квартал 2024:',
-                                   'Documents/best_emp_all_3 ch_2024.pdf')
-
-    elif message.text == '4-й квартал 2024':
+    elif message.text == '1-е полугодие 2025':
         markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
-        chapter1 = types.KeyboardButton('Лучшие сотрудники Департамента доставки 4-й квартал')
-        chapter2 = types.KeyboardButton('Лучшие сотрудники Департамента регионального развития 4-й квартал')
+        chapter1 = types.KeyboardButton('Лучшие сотрудники Департамента доставки 1-е полугодие')
+        chapter2 = types.KeyboardButton('Лучшие сотрудники Департамента регионального развития 1-е полугодие')
         markup.row(chapter1)
         markup.row(chapter2)
         bot.send_message(message.chat.id, 'Для возврата нажмите /home', parse_mode='html', reply_markup=markup)
 
 
-    elif message.text == 'Лучшие сотрудники Департамента доставки 4-й квартал':
+    elif message.text == 'Лучшие сотрудники Департамента доставки 1-е полугодие':
         send_document_with_message(bot, message.chat.id,
-                                   'Лучшие сотрудники Департамента доставки 4-й квартал:',
-                                   'Documents/best_emp_mos_4 ch_2024.pdf')
+                                   'Лучшие сотрудники Департамента доставки 1-е полугодие:',
+                                   'Documents/best_1_half_msk.pdf')
 
 
-    elif message.text == 'Лучшие сотрудники Департамента регионального развития 4-й квартал':
+    elif message.text == 'Лучшие сотрудники Департамента регионального развития 1-е полугодие':
         send_document_with_message(bot, message.chat.id,
-                                   'Лучшие сотрудники Департамента регионального развития 4-й квартал:',
-                                   'Documents/best_emp_region_4 ch_2024.pdf')
+                                   'Лучшие сотрудники Департамента регионального развития 1-е полугодие:',
+                                   'Documents/best_1_half_reg.pdf')
 
     else:
         bot.send_message(message.chat.id,'Для возврата в начало нажмите /home\n'
